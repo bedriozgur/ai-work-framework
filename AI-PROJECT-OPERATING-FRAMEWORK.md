@@ -107,7 +107,19 @@ On resumption, inspect referenced artifacts rather than relying only on the summ
 ## Storage strategy
 This repository stores reusable methodology, templates, and patterns. It must not become a central store for every project's live state.
 
-Each project keeps project-specific state in its own repository or controlled workspace. Large binaries, raw logs, and sensitive evidence may live outside Git with stable references and metadata where appropriate. Customer-sensitive information requires project-appropriate access controls.
+Each project keeps project-specific control state in its own GitHub repository or controlled Git workspace.
+
+### Standard storage boundary
+
+**GitHub is the canonical control/state plane.** Store framework definitions, project instructions, rules, canonical state, task definitions, decisions, checks, code, configuration, workflows, and compact reproducibility artifacts there.
+
+**Google Drive is the standard artifact/evidence/interchange plane.** Store large or binary inputs and outputs, PDFs, Office documents, exports, support bundles, raw logs, customer documents where permitted, generated deliverables, and cross-agent review packages there.
+
+A small evidence artifact may remain in Git when versioning or reproducibility materially benefits from it. Sensitive evidence must use project-appropriate access controls regardless of storage location.
+
+**Dropbox is not part of the standard framework architecture.** Introduce another storage system only when a concrete project requirement justifies it.
+
+References from GitHub state to Drive evidence should be stable and include enough provenance to identify the exact artifact/version used.
 
 ## Adoption
 1. Finalize the framework.
