@@ -12,7 +12,7 @@ Until v1.0, the framework remains Draft and may change incompatibly.
 
 ## Project adoption
 
-Each managed project should record the framework version it adopted. Framework updates do not automatically rewrite project-specific rules or state.
+Each managed project must record the framework version and exact framework commit it adopted in `project.yaml`. A moving branch name is not a reproducible pin. Framework updates do not automatically rewrite project-specific rules or state.
 
 An upgrade should:
 1. compare the project's adopted version with the target;

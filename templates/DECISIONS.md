@@ -1,6 +1,10 @@
 # Decisions
 
-## YYYY-MM-DD — <Decision>
+## D-001 — YYYY-MM-DD — <Decision>
+
+- **Status:** proposed | accepted | superseded | rejected
+- **Approved by:**
+- **Supersedes:**
 
 ### Decision
 -

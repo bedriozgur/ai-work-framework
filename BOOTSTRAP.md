@@ -5,25 +5,28 @@ Create the minimum correct project harness without inventing project facts.
 
 ## 1. Select profile
 
-Use **Lightweight** when work is bounded, low-to-moderate consequence, has few recurring workflows, and does not require detailed permission/source governance.
+Use **Lightweight** when work is bounded, low-to-moderate consequence, single-writer, has few recurring workflows, and does not require detailed permission/source governance.
 
-Use **Full** when work is recurring, multi-agent, automation-heavy, consequential, source-sensitive, or requires explicit acceptance/approval rules.
+Use **Full** when any approval-gated action, recurring automation, multiple writers, sensitive/customer data, or explicit acceptance/source governance is in scope.
 
-When uncertain, start Lightweight and promote later.
+When none of the Full triggers is known to apply, start Lightweight and promote as soon as one appears.
 
 ## 2. Create required files
 
-Copy the appropriate templates. Populate only facts supported by the initiating request or inspected evidence.
+Copy `templates/project.yaml` and the templates required by the selected profile. Populate only facts supported by the initiating request or inspected evidence.
+
+`project.yaml` is mandatory. Replace all placeholders, pin the exact framework commit, and run `scripts/validate_project.py` before work begins. Agents locate the project root as the nearest ancestor containing `project.yaml`.
+
+Copy `templates/AGENTS.md` when the target agent automatically loads that file. It is a pointer, not a second source of project policy.
 
 Unknown information must remain UNKNOWN/TBD rather than being guessed.
 
 ## 3. Establish project identity
 
-`PROJECT.md` must minimally define:
+`project.yaml` defines project identity, profile, framework pin, canonical repository, and control-file paths. `PROJECT.md` must minimally define:
 - objective;
 - scope;
 - expected deliverable/outcome;
-- profile;
 - authoritative references known at bootstrap.
 
 ## 4. Establish initial state

@@ -22,8 +22,5 @@
 ## Terminology
 -
 
-## Project Profile
-<!-- lightweight | full -->
-
 ## Authoritative References
 -

@@ -2,12 +2,12 @@
 
 ## Active
 
-### <Task>
+### T-001 — <Task>
 - **Priority:**
 - **Status:**
 - **Dependencies:**
 - **Blockers:**
-- **Acceptance criteria:**
+- **Check IDs:** <!-- Reference definitions in CHECKS.md. -->
 - **Next action:**
 
 ## Backlog

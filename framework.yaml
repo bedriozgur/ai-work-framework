@@ -6,11 +6,13 @@ framework:
 profiles:
   lightweight:
     required_files:
+      - project.yaml
       - PROJECT.md
       - STATE.md
       - PROGRESS.md
   full:
     required_files:
+      - project.yaml
       - PROJECT.md
       - RULES.md
       - STATE.md
@@ -24,7 +26,7 @@ execution:
   prefer_bounded_actions: true
   require_verification: true
   require_completion_state: true
-  require_handoff_when_incomplete: true
+  require_handoff: true
   preserve_failed_checks: true
   verify_final_saved_artifact: true
   selective_context_loading: true
@@ -55,7 +57,7 @@ permissions:
     - validate
     - update_approved_project_files
   default_approval_required:
-    - delete_data
+    - destructive_action
     - production_change
     - production_restart
     - external_publish
@@ -74,8 +76,11 @@ failure_policy:
   retrieved_content_is_instruction_authority: false
 
 concurrency:
+  canonical_state_writers: 1
   blind_overwrite_canonical_state: false
   recheck_before_write: true
+  record_base_commit: true
+  force_push: false
   prefer_append_only_history: true
 
 enforcement:

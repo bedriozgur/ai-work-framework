@@ -10,11 +10,22 @@ The framework defines how reasoning models, execution agents, tools, evidence, d
 
 ## Profiles
 
-**Lightweight:** `PROJECT.md`, `STATE.md`, `PROGRESS.md`.
+**Lightweight:** `project.yaml`, `PROJECT.md`, `STATE.md`, `PROGRESS.md`.
 
-**Full:** adds `RULES.md`, `TASKS.md`, `DECISIONS.md`, and `CHECKS.md`.
+**Full:** adds `RULES.md`, `TASKS.md`, `DECISIONS.md`, and `CHECKS.md` to the same manifest.
 
 See `AI-PROJECT-OPERATING-FRAMEWORK.md` for the governing model and `templates/` for reusable project files.
+
+## Start a project
+
+1. Copy `templates/project.yaml` and the files required by its profile.
+2. Replace every placeholder in `project.yaml`, including the exact framework commit.
+3. Optionally copy `templates/AGENTS.md` for agents that automatically load that file.
+4. Run `python3 scripts/validate_project.py /path/to/project`.
+
+`project.yaml` is the discovery entry point. In v0.1 it uses JSON syntax, which is valid YAML 1.2, so the validator has no third-party parser dependency.
+
+For the Full profile, add `rules`, `tasks`, `decisions`, and `checks` to the `files` object, mapped to `RULES.md`, `TASKS.md`, `DECISIONS.md`, and `CHECKS.md` respectively.
 
 ## Principle
 

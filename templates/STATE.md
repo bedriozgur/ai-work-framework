@@ -1,14 +1,10 @@
 # State
 
-**Last verified:** YYYY-MM-DD
+Each material entry records its classification and evidence. Do not use one file-level date as a substitute for per-entry freshness.
 
-## Verified Current State
-<!-- Facts confirmed by evidence. Include source/date where useful. -->
--
-
-## Historical Observations
-<!-- Keep only when useful; do not confuse these with current state. -->
--
+| ID | Class | Statement | Evidence / source | As of | Freshness / expiry |
+|---|---|---|---|---|---|
+| S-001 | UNKNOWN | | | | |
 
 ## Active Problems / Risks
 -

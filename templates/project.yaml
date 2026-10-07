@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "project_id": "replace-me",
+  "profile": "lightweight",
+  "framework": {
+    "version": "0.1",
+    "repository": "https://github.com/bedriozgur/ai-work-framework",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "canonical_repository": "https://github.com/owner/repository",
+  "files": {
+    "project": "PROJECT.md",
+    "state": "STATE.md",
+    "progress": "PROGRESS.md"
+  }
+}

@@ -15,7 +15,8 @@ Record:
 - TASK
 - CONSTRAINTS
 - OUTPUTS with exact paths/references
-- COMPLETED and verification evidence
+- COMPLETED
+- VERIFICATION with check results and evidence
 - DECISIONS and rationale
 - OPEN ISSUES
 - NEXT ACTION
