@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.validate_project import validate
+from scripts.validate_project import load_profiles, validate
 
 
 SHA = "5d644751ef9b909d0ac792942c71491cd1ebde31"
@@ -33,6 +33,13 @@ def manifest(profile="lightweight"):
 
 
 class ValidatorTests(unittest.TestCase):
+    def test_framework_profile_contract(self):
+        self.assertEqual(load_profiles()["lightweight"], {"project", "state", "progress"})
+        self.assertEqual(
+            load_profiles()["full"],
+            {"project", "rules", "state", "tasks", "progress", "decisions", "checks"},
+        )
+
     def make_project(self, data):
         temp = tempfile.TemporaryDirectory()
         root = Path(temp.name)

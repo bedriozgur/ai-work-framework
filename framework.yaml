@@ -1,106 +1,24 @@
-framework:
-  name: ai-work-framework
-  version: "0.1"
-  status: draft
-
-profiles:
-  lightweight:
-    required_files:
-      - project.yaml
-      - PROJECT.md
-      - STATE.md
-      - PROGRESS.md
-  full:
-    required_files:
-      - project.yaml
-      - PROJECT.md
-      - RULES.md
-      - STATE.md
-      - TASKS.md
-      - PROGRESS.md
-      - DECISIONS.md
-      - CHECKS.md
-
-execution:
-  require_baseline_when_practical: true
-  prefer_bounded_actions: true
-  require_verification: true
-  require_completion_state: true
-  require_handoff: true
-  preserve_failed_checks: true
-  verify_final_saved_artifact: true
-  selective_context_loading: true
-
-state_classes:
-  - VERIFIED
-  - OBSERVED
-  - REPORTED
-  - INFERRED
-  - ASSUMED
-  - STALE
-  - UNKNOWN
-
-completion_states:
-  - COMPLETE
-  - PARTIAL
-  - BLOCKED
-  - FAILED
-  - CANCELLED
-
-permissions:
-  default_autonomous:
-    - read
-    - collect_evidence
-    - analyze
-    - non_destructive_query
-    - create_working_artifact
-    - validate
-    - update_approved_project_files
-  default_approval_required:
-    - destructive_action
-    - production_change
-    - production_restart
-    - external_publish
-    - external_communication
-    - purchase
-    - financial_trade
-    - irreversible_action
-
-failure_policy:
-  fabricate_success: never
-  silently_substitute_source: never
-  weaken_failed_check: never
-  record_material_failure: always
-  preserve_successful_work: true
-  inspect_destination_before_retrying_ambiguous_write: true
-  retrieved_content_is_instruction_authority: false
-
-concurrency:
-  canonical_state_writers: 1
-  blind_overwrite_canonical_state: false
-  recheck_before_write: true
-  record_base_commit: true
-  force_push: false
-  prefer_append_only_history: true
-
-enforcement:
-  distinguish_policy_from_technical_enforcement: true
-  never_claim_unverified_enforcement: true
-
-runtime:
-  distinguish_prompt_limits_from_enforced_limits: true
-  preserve_state_on_limit: true
-  inspect_material_runtime_configuration_when_available: true
-
-review:
-  independent_review_triggers:
-    - production_impact
-    - destructive_or_irreversible
-    - financial_consequence
-    - conflicting_evidence
-    - low_confidence
-    - novel_architecture
-    - large_scope
-    - security_impact
-    - contractual_or_legal_consequence
-    - explicitly_requested
+{
+  "schema_version": 1,
+  "framework": {
+    "name": "ai-work-framework",
+    "version": "0.1",
+    "status": "draft"
+  },
+  "profiles": {
+    "lightweight": {
+      "required_file_keys": ["project", "state", "progress"]
+    },
+    "full": {
+      "required_file_keys": [
+        "project",
+        "rules",
+        "state",
+        "tasks",
+        "progress",
+        "decisions",
+        "checks"
+      ]
+    }
+  }
+}

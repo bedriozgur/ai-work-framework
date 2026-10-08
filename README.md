@@ -25,6 +25,8 @@ See `AI-PROJECT-OPERATING-FRAMEWORK.md` for the governing model and `templates/`
 
 `project.yaml` is the discovery entry point. In v0.1 it uses JSON syntax, which is valid YAML 1.2, so the validator has no third-party parser dependency.
 
+`framework.yaml` uses the same format and contains only the structural profile contract consumed by the validator. Behavioral requirements live in the protocol; they are not technical controls unless the active runtime enforces them.
+
 For the Full profile, add `rules`, `tasks`, `decisions`, and `checks` to the `files` object, mapped to `RULES.md`, `TASKS.md`, `DECISIONS.md`, and `CHECKS.md` respectively.
 
 ## Principle

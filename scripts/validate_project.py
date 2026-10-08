@@ -15,12 +15,29 @@ import sys
 from pathlib import Path, PurePosixPath
 
 
-PROFILES = {
-    "lightweight": {"project", "state", "progress"},
-    "full": {"project", "rules", "state", "tasks", "progress", "decisions", "checks"},
-}
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 PLACEHOLDERS = {"replace-me", "https://github.com/owner/repository", "0" * 40}
+
+
+def load_profiles() -> dict[str, set[str]]:
+    contract_path = Path(__file__).resolve().parents[1] / "framework.yaml"
+    try:
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"invalid framework contract {contract_path}: {exc}") from exc
+
+    if contract.get("schema_version") != 1 or not isinstance(contract.get("profiles"), dict):
+        raise RuntimeError("framework.yaml must define schema_version 1 and profiles")
+
+    profiles: dict[str, set[str]] = {}
+    for name, definition in contract["profiles"].items():
+        keys = definition.get("required_file_keys") if isinstance(definition, dict) else None
+        if not isinstance(keys, list) or not keys or not all(isinstance(key, str) and key for key in keys):
+            raise RuntimeError(f"profile {name!r} must define non-empty required_file_keys")
+        if len(keys) != len(set(keys)):
+            raise RuntimeError(f"profile {name!r} contains duplicate required_file_keys")
+        profiles[name] = set(keys)
+    return profiles
 
 
 def fail(errors: list[str], message: str) -> None:
@@ -36,6 +53,10 @@ def relative_file(value: object) -> bool:
 
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
+    try:
+        profiles = load_profiles()
+    except RuntimeError as exc:
+        return [str(exc)]
     manifest_path = root / "project.yaml"
     if not manifest_path.is_file():
         return ["missing project.yaml"]
@@ -57,8 +78,8 @@ def validate(root: Path) -> list[str]:
         fail(errors, "project_id placeholder must be replaced")
 
     profile = data.get("profile")
-    if profile not in PROFILES:
-        fail(errors, "profile must be lightweight or full")
+    if profile not in profiles:
+        fail(errors, "profile must be one of: " + ", ".join(sorted(profiles)))
 
     framework = data.get("framework")
     if not isinstance(framework, dict):
@@ -82,8 +103,8 @@ def validate(root: Path) -> list[str]:
     files = data.get("files")
     if not isinstance(files, dict):
         fail(errors, "files must be an object")
-    elif profile in PROFILES:
-        expected = PROFILES[profile]
+    elif profile in profiles:
+        expected = profiles[profile]
         missing_keys = sorted(expected - files.keys())
         extra_keys = sorted(files.keys() - expected)
         if missing_keys:
