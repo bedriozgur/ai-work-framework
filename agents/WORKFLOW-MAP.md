@@ -1,73 +1,114 @@
 # Agent Workflow Map
 
-This document defines the default routing between the five reusable profiles. It is a workflow design, not proof that any specific OpenClaw/n8n automation is deployed. Verify and enforce tool permissions in the actual runtime.
+This map describes intended role routing; it is not proof that an OpenClaw, n8n, or direct-model workflow is deployed. Runtime tools, credentials, serialization, approval gates, and logs must be verified separately.
+
+## Responsibility model
+
+- **Chief-of-Staff** owns cross-domain intake, task framing, queue visibility, specialist assignment, and final handoff. It does not own specialist technical conclusions.
+- **Infra-Orchestrator** owns the AI/automation execution environment: OpenClaw, n8n, MCPs, VM/service state, scheduling, retries, callback handling, and workflow observability.
+- **Domain specialists** own bounded evidence work within their profile.
+- **QA-Auditor** independently checks a final artifact and returns a separate audit record.
+- **Bedri** retains portfolio/capital decisions, customer approvals, and other consequential human decisions.
+
+For a direct request clearly addressed to a specialist, that specialist may lead without a Chief-of-Staff pass. For recurring jobs, Infra-Orchestrator may start the run directly from the authorized schedule and rules.
 
 ## Routing table
 
-| Request type | Lead | Supporting agent | Default sequence |
+| Work | Lead | Supporting profiles | Sequence |
 |---|---|---|---|
-| Portfolio, watchlist, scheduled MIDAS scan | Infra-Orchestrator (scheduled routing) or MIDAS-Trader (direct request) | QA-Auditor when required | Verify due/run context → source-specific research → audit → persist/hand off |
-| TradingView vs Alpha Vantage independent study | Infra-Orchestrator | MIDAS-Trader with two isolated runs; QA-Auditor after both finish | Run A + Run B independently → freeze outputs → compare → audit |
-| OpenClaw, n8n, MCP, scheduler issue | Infra-Orchestrator | QA-Auditor for consequential changes | Read-only diagnosis → bounded fix proposal → approval if needed → execute only approved change → verify |
-| Customer infrastructure assessment/design | Enterprise-Architect | QA-Auditor for high impact or explicit review | Gather evidence → classify facts → plan → customer/internal output split → review |
-| Product, technology, or personal research | Research-Curator | QA-Auditor when evidence or consequence warrants | Define scope → primary research → compare → synthesize |
-| Cross-domain request | Infra-Orchestrator | One domain specialist at a time, plus QA as needed | Split only at clear boundaries; retain one task/run ID and explicit artifact ownership |
+| Daily MIDAS scan/portfolio review | MIDAS-Trader or scheduled Infra-Orchestrator | Market-Data-Collector, Technical-Risk-Analyst, Fundamental-Catalyst-Analyst; QA-Auditor when required | Verify current state/calendar → collect by source → analyze by domain → synthesize → audit → persist and notify |
+| TV vs Alpha Vantage independent analysis | MIDAS-Trader or Chief-of-Staff | Two isolated Collector instances; two isolated Technical-Risk-Analyst instances; QA-Auditor | Run A and B independently → freeze both → compare → audit → report |
+| PRT research/code/backtest | Chief-of-Staff or direct request | Quant-Research-Engineer; QA-Auditor as warranted | Approved hypothesis/spec → implement/test → baseline and out-of-sample evaluation → independent check → report |
+| OpenClaw/n8n/MCP/scheduler or VM issue | Infra-Orchestrator | QA-Auditor for material change | Read-only diagnosis → bounded proposal → approval if needed → authorized change → verify runtime and recovery |
+| Customer infrastructure assessment/design | Chief-of-Staff for broad program; otherwise Enterprise-Architect | Research-Curator for vendor evidence; QA-Auditor for consequential findings | Inventory/evidence → classify → design/remediation → customer/internal outputs → review |
+| Product, technical, genealogy, or other general research | Research-Curator | QA-Auditor when evidence or consequence warrants | Scope → primary research → compare → synthesize → source list |
+| Cross-domain work | Chief-of-Staff | One accountable specialist per separable work package | Brief each package → preserve dependencies/owners → integrate verified results → hand off |
 
-## MIDAS two-source sequence
+## MIDAS workflow
 
-1. Orchestrator validates the task envelope, market date/session, current MIDAS rules, symbols, interval, freshness, and permission boundary.
-2. TradingView run collects and computes only TradingView-based results; Alpha Vantage run collects and computes only Alpha Vantage-based results. Separate directories or isolated work contexts are preferred.
-3. Each run records raw evidence references, timestamps, formula/seed settings, missing data, and bounded retries.
-4. Orchestrator waits for both terminal states. If one fails, preserve the successful run and report the combined task as `PARTIAL` or `BLOCKED`; do not fill gaps with the successful provider.
-5. Only after both outputs are frozen may the comparison identify differences and possible causes.
-6. QA-Auditor independently checks the final report against both isolated evidence sets and applicable rules.
-7. Persist only to the authorized MIDAS destination. This workflow never routes to broker write access.
+### A. Scheduled review
 
-## Common task envelope
+1. The scheduler or Infra-Orchestrator determines whether a run is due from the current approved schedule, exchange calendar, local timezone, and holiday/early-close rules. Recorded stage times (Discovery 15:00, Pre-open 16:20, Post-open 18:00 Europe/Istanbul) must be verified against the current project configuration; they are not proof of run completion.
+2. MIDAS-Trader loads the current portfolio, cash, shortlist/longlist, strategy, open decisions, report schema, and prior run state from the MIDAS project sources.
+3. The appropriate collector obtains the configured discovery/price/fundamental evidence. Screening sources remain discovery-only where project rules say so.
+4. Technical and fundamental analysts return separate evidence-backed work products. Candidate status remains distinct from holding status and an approved decision.
+5. MIDAS-Trader prepares the portfolio-context synthesis and decision candidates. Bedri reviews and decides.
+6. QA-Auditor checks material calculations, source and freshness markers, and final report content when required.
+7. Authorized artifacts are saved to the MIDAS repository; run state/logs are updated; Telegram or other notifications report status and links, not unsupported conclusions.
 
-Every handoff should carry:
+### B. Independent provider analysis
 
-- `task_id`, `run_id`, and parent run/task ID where applicable.
-- Objective and explicit non-goals.
-- Project root and exact base revision.
-- Input artifact identifiers/revisions and freshness requirements.
-- Assigned profile and bounded responsibility.
-- Required and prohibited tools/actions.
-- Source policy, including isolation labels and fallback rules.
-- Deadline, timeout, and maximum attempts.
-- Acceptance checks and output format/path.
-- Approval status and exact approved scope, if any.
+1. Assign separate task IDs/run IDs and enforce separate tool allowlists for TradingView and Alpha Vantage.
+2. Each Market-Data-Collector retrieves only from its assigned provider and preserves raw evidence.
+3. Each Technical-Risk-Analyst uses only its assigned provider's frozen dataset. Do not pass Run A's derived values, missing-data decisions, or assumptions into Run B.
+4. Each run independently terminates as complete, partial, blocked, or failed. Bounded 429 retries and errors are recorded.
+5. Compare only after both outputs have been frozen. Explain differences; do not average values or select a preferred source silently.
+6. QA reviews the comparison and final saved report. A failed provider run stays visible; no provider fills its gaps unless the task's explicit source policy allowed it.
+7. No broker integration, order routing, or execution is part of MIDAS.
 
-Never pass secrets in prompts or task envelopes. Put operational credentials in the approved secret store/runtime configuration.
+### C. MIDAS research outputs
 
-## Return envelope
+Reports should state run/as-of time and timezone; symbols and venue; source and freshness; raw evidence reference; calculations/formulas/seeds/units; errors and gaps; candidate/holding/decision status; limits; verification; and next action. Proposed SL1/SL2 zones are analytical triggers unless separately found in an approved current strategy record. A research report never implies an order was placed.
 
-Every agent returns:
+## PRT research-engineering workflow
 
-- Task/run IDs and assigned profile.
-- Status: `COMPLETE`, `PARTIAL`, `BLOCKED`, `FAILED`, or `CANCELLED`.
-- Inputs and revisions actually used.
-- Work performed and outputs with exact locations.
-- Sources/tools actually used, timestamps, retries, and errors.
-- Checks performed and evidence for results.
-- Assumptions, unknowns, conflicts, and limitations.
-- Decisions required from the human.
-- One concrete next action.
+“PRT” is preserved as Bedri's term; do not expand the acronym without an authoritative definition.
 
-## Routing and concurrency rules
+1. Bedri/assistant records a specific research question or hypothesis and what would falsify it.
+2. Quant-Research-Engineer locates the project code, dataset, base commit, and current test/run instructions.
+3. Agree on signal timing, fills, costs/slippage, corporate actions, universe/survivorship, train/test periods, benchmark, metrics, and compute/time limits before interpreting results.
+4. Implement a bounded experiment in a branch or sandbox; record versions, seeds, commands, and data lineage.
+5. Run deterministic tests and a baseline comparison; report out-of-sample results, drawdowns, transaction costs, parameter sensitivity, and failure cases.
+6. QA-Auditor independently checks the final commit and material statistics when warranted.
+7. Bedri interprets findings and decides whether to continue research. No automation schedules live strategies or places orders.
 
-- One canonical-state writer per project at a time, consistent with the framework protocol.
-- Independent read-only source collection may run in parallel only when the boundaries are explicit and outputs remain isolated.
-- Do not let QA modify the research artifact. If a finding is accepted, assign a separate correction task and then re-audit the saved revision.
-- Do not cascade an unverified result into later agents as if it were established fact. Preserve its evidence classification.
-- A prompt-level prohibition is not runtime enforcement. Restrict tools, scopes, credentials, branch access, and network access independently.
-- For writes with ambiguous outcomes, inspect the destination before retrying.
+## AI platform and automation workflow
 
-## Default failure routing
+- Chief-of-Staff converts cross-domain goals into owned packages.
+- Infra-Orchestrator verifies actual runtime: host role, Gateway endpoint/auth, n8n connectivity, MCP health/scope, schedule/calendar, callback, timeouts, retry budget, and logs.
+- OpenClaw runs configured specialist/tool workflows; n8n handles only the deterministic orchestration functions assigned to it. Do not presume an architecture's implementation state from a plan.
+- Python is used for deterministic transforms, indicators, and backtests where a transparent reproducible calculation is preferable to model reasoning.
+- GitHub stores canonical framework/project control state. Google Drive is the standard artifact/evidence/interchange plane under the accepted framework decision. Dropbox is not part of the standard framework architecture.
+- Telegram carries notifications/fallbacks; messages must reflect verified run status and should not expose secrets or unnecessary evidence.
 
-- **Required source unavailable:** specialist records failure and stops that source run; orchestrator applies only the declared fallback policy.
-- **Conflicting evidence:** preserve both results and route to a resolver/reviewer; never average or choose silently.
-- **Missing approval:** stop before the consequential action and provide the exact proposed action, effect, risk, and rollback.
-- **Stale/invalid state:** stop dependent execution and request refresh or repair.
-- **Agent unavailable:** continue only if its role is optional under acceptance criteria; otherwise mark blocked/partial.
-- **Timeout:** preserve completed work, inspect any external write destination, record unfinished checks, and return a resumable handoff.
+## Enterprise/customer engineering workflow
+
+1. Chief-of-Staff identifies customer/project, scope, output audience, and authority.
+2. Enterprise-Architect inventories evidence and classifies each claim as VERIFIED, OBSERVED, REPORTED, INFERRED, ASSUMED, STALE, or UNKNOWN.
+3. It checks vendor support from current primary documentation and records exact model/version/region/configuration. Silence in a compatibility matrix is not automatically a vendor rejection.
+4. It creates current-state/desired-state gaps, risk, dependencies, phase, owner, precondition, approval, implementation outline, rollback, and validation.
+5. Internal engineering notes and customer-facing proposal are separated when needed.
+6. QA checks high-impact findings, calculations, support claims, and final text.
+7. A proposed remediation remains a proposal until the customer/Bedri approval and implementation evidence are recorded.
+
+## General research and deliverable workflow
+
+Research-Curator defines scope, researches current primary sources, captures citations and dates, compares conflicting evidence, and returns an answer or document with confidence and gaps. For a report or document, use the appropriate output format and verify the final saved version. Customer communications, purchases, bookings, publication, or sending are separate actions and require explicit authorization.
+
+## Task brief and return envelope
+
+Each assignment carries the nine-field brief:
+
+- **GOAL** — one observable result.
+- **SCOPE** — included/excluded work and target artifact.
+- **CONTEXT** — project state, sources, revisions, and constraints.
+- **ACCEPTANCE** — observable completion conditions.
+- **VERIFY** — checks and evidence.
+- **TIMEBOX** — deadline, timeout, retry/budget limit.
+- **FORBIDDEN** — prohibited sources, tools, writes, or actions.
+- **REPORT** — output schema/location and status fields.
+- **STANDING** — durable rules and decisions.
+
+Every return contains task/run IDs, status (`COMPLETE`, `PARTIAL`, `BLOCKED`, `FAILED`, `CANCELLED`), inputs/revisions used, actions, output references, sources/tools/timestamps/retries, checks, evidence, assumptions/conflicts, decision requests, and one next action. If the task is unattended, include a run log and concise human-readable completion summary.
+
+## Concurrency and failure rules
+
+- One writer for canonical project state at a time. Independent read-only collection can run concurrently only with explicit data/source isolation.
+- QA never edits the research artifact. Create a separate correction task, save a new revision, and re-audit.
+- A prompt-level restriction is not enforcement; use runtime tool/credential/network/branch controls.
+- Required source unavailable → keep successful work, mark the run partial/blocked, and apply only a declared fallback.
+- Conflicting evidence → preserve both claims and route for resolution; never choose silently.
+- Missing approval → stop before the side effect and give exact action/effect/risk/rollback.
+- Timed-out or ambiguous write → inspect the destination before retry.
+- Agent/model unavailable → proceed only if that role is optional under acceptance checks.
+- Stop cleanly at limits; persist outputs and leave a resumable next action.
