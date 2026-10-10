@@ -28,7 +28,8 @@ For a direct request clearly addressed to a specialist, that specialist may lead
 
 ### A. Scheduled review
 
-1. The scheduler or Infra-Orchestrator determines whether a run is due from the current approved schedule, exchange calendar, local timezone, and holiday/early-close rules. Recorded stage times (Discovery 15:00, Pre-open 16:20, Post-open 18:00 Europe/Istanbul) must be verified against the current project configuration; they are not proof of run completion.
+1. The scheduler or Infra-Orchestrator determines whether a run is due from the current approved schedule, exchange calendar, local timezone, and holiday/early-close rules. The recorded weekday stage times are Discovery 15:00, Pre-open 16:20, and Post-open 18:00 Europe/Istanbul. Treat these as schedule definitions, not proof of run completion. Do not move them without an authorized project change.
+2. Check the US Eastern offset, Europe/Istanbul time, exchange holiday/early-close calendar, and actual expected regular-session open for that date. The US regular session normally opens at 09:30 Eastern. During US daylight time, 16:20 Istanbul is 10 minutes before open and 18:00 is 90 minutes after; during US standard time, 16:20 is 70 minutes before and 18:00 is 30 minutes after. Discovery at 15:00 also shifts relative to open. Report actual minutes-to-open/after-open with each run; if the existing timing no longer fits the operational purpose, propose a schedule change for approval.
 2. MIDAS-Trader loads the current portfolio, cash, shortlist/longlist, strategy, open decisions, report schema, and prior run state from the MIDAS project sources.
 3. The appropriate collector obtains the configured discovery/price/fundamental evidence. Screening sources remain discovery-only where project rules say so.
 4. Technical and fundamental analysts return separate evidence-backed work products. Candidate status remains distinct from holding status and an approved decision.
