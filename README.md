@@ -18,7 +18,7 @@ See `AI-PROJECT-OPERATING-FRAMEWORK.md` for the governing model and `templates/`
 
 ## Reusable agent profiles
 
-The [`agents/` directory](agents/README.md) contains model-neutral profiles for MIDAS trading research, infrastructure orchestration, enterprise architecture, independent QA, and research curation. The profiles define behavioral contracts and handoffs; runtime tools, permissions, source isolation, and approval controls must be configured separately.
+The [`agents/` directory](agents/README.md) contains ten model-neutral profiles: cross-domain coordination, infrastructure orchestration, MIDAS portfolio synthesis, source-isolated data collection, technical risk, issuer fundamentals/catalysts, quantitative research engineering, enterprise architecture, QA, and general research. User-specific work patterns are documented in [Bedri's workflow handoff](BEDRI-CHATGPT-WORKFLOW.md). These documents define behavior and handoffs; runtime tools, permissions, source isolation, and approval controls must be configured separately.
 
 ## Start a project
 
