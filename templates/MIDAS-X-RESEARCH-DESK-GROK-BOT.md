@@ -111,7 +111,7 @@ Use one record per distinct event, merging duplicate posts about the same event 
   "source_url": "https://x.com/...",
   "author": "@handle",
   "published_at": "ISO-8601 timestamp or stated date with timezone if known",
-  "mid​​as_status": "holding | shortlist | longlist | apparently_new",
+  "midas_status": "holding | shortlist | longlist | apparently_new",
   "discovery_status": "new_lead | material_update | stale_repeated | unsupported | rejected",
   "supporting_sources": [],
   "supported_wording": "What the available source evidence permits us to say",
