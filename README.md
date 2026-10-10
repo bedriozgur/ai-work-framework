@@ -16,6 +16,10 @@ The framework defines how reasoning models, execution agents, tools, evidence, d
 
 See `AI-PROJECT-OPERATING-FRAMEWORK.md` for the governing model and `templates/` for reusable project files.
 
+## Reusable agent profiles
+
+The [`agents/` directory](agents/README.md) contains model-neutral profiles for MIDAS trading research, infrastructure orchestration, enterprise architecture, independent QA, and research curation. The profiles define behavioral contracts and handoffs; runtime tools, permissions, source isolation, and approval controls must be configured separately.
+
 ## Start a project
 
 1. Copy `templates/project.yaml` and the files required by its profile.
