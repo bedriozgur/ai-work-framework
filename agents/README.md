@@ -19,6 +19,12 @@ These model-neutral profiles can be used through OpenClaw, n8n, direct model/API
 
 [Workflow map](WORKFLOW-MAP.md) defines role handoffs and sequencing.
 
+## Practical operating roster
+
+The ten profiles are a capability library, not a ten-agent team. For routine work, run one domain specialist. For cross-domain work, add Chief-of-Staff to coordinate and integrate. Add QA-Auditor only when the risk, uncertainty, explicit acceptance criteria, or Bedri’s request justifies an independent pass. In MIDAS, use the Market-Data-Collector, Technical-Risk-Analyst, and Fundamental-Catalyst-Analyst as bounded components only when the task needs those evidence streams; use Quant-Research-Engineer for research code/experiments, and invoke Enterprise-Architect or Research-Curator for their domains. Infra-Orchestrator is the lead for runtime and automation operations, not a mandatory participant in unrelated work.
+
+**Deployment status:** These Markdown profiles define intended behavior. They do not demonstrate that an agent is configured, scheduled, connected, authorized, or technically restricted. Before operational use, verify runtime identity, tool allowlists, credentials/scopes, approval gates, timeouts, budgets, logs, and failure behavior. Keep a deployment inventory separate from these role descriptions.
+
 ## How to select profiles
 
 Use the smallest team that satisfies the task:
