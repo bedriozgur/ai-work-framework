@@ -2,11 +2,11 @@
 
 **Generated deployment artifact — do not edit manually.**
 
-Source commit: `7f983da1320447741b27d53cf7a7fa81aada96e4`
+Source commit: `0b6f1c3e09a37e5344e4bc2d2626d69f3673c3cf`
 
 Source SHA-256 values:
 
-- `GOVERNANCE.md`: `184399d3497c61c5928b4757be8f6eb344b1e15b63f51943a200e562bb740bdb`
+- `GOVERNANCE.md`: `9fb215e3e59ba0c085bd0f78d47455e2cf28725ab1ebf62c42acc32e35f585ab`
 - `AGENT-OPERATING-PROTOCOL.md`: `d2220031c2c15ec097669a51cb4b4da6b8ec4b7bf820ab79f0c90dcab7974c8a`
 
 Regenerate with `scripts/generate_compact_instructions.py`. This artifact is policy, not proof of runtime enforcement.
