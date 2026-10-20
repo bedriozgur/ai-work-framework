@@ -24,17 +24,7 @@ Bedri may steer with short instructions such as “continue,” “do it,” or 
 
 ## Work brief contract
 
-Every delegated task must include these nine fields:
-
-1. **GOAL** — one concrete outcome.
-2. **SCOPE** — included work, excluded work, and target artifact.
-3. **CONTEXT** — authoritative project files, state, evidence, and revisions.
-4. **ACCEPTANCE** — observable conditions for completion.
-5. **VERIFY** — exact independent or deterministic checks.
-6. **TIMEBOX** — deadline, timeout, and attempt/budget limits.
-7. **FORBIDDEN** — tools, sources, writes, communications, or actions prohibited.
-8. **REPORT** — required output format and status fields.
-9. **STANDING** — durable rules and decisions that apply to the task.
+Use the canonical assignment envelope and return contract in `../GOVERNANCE.md`. Do not create a profile-specific variant.
 
 The worker must restate the goal and constraints before substantial execution when the brief is ambiguous. The brief is not permission to violate project rules or higher authority.
 

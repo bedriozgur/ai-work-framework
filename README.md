@@ -4,6 +4,8 @@ A reusable operating framework for AI-assisted projects.
 
 The framework defines how reasoning models, execution agents, tools, evidence, durable project state, verification, permissions, and handoffs work together. Live project state remains in each project's own repository or controlled workspace.
 
+`GOVERNANCE.md` is the normative source for authority, invariants, the approval floor, task classification, assignment envelopes, delegation evidence, and QA verdicts. `AGENT-OPERATING-PROTOCOL.md` defines the execution lifecycle. Other files must link to, not redefine, those concepts.
+
 ## Core loop
 
 **Read state → understand task → inspect evidence → choose a bounded action → execute → verify → persist → hand off.**
@@ -14,7 +16,7 @@ The framework defines how reasoning models, execution agents, tools, evidence, d
 
 **Full:** adds `RULES.md`, `TASKS.md`, `DECISIONS.md`, and `CHECKS.md` to the same manifest.
 
-See `AI-PROJECT-OPERATING-FRAMEWORK.md` for the governing model and `templates/` for reusable project files.
+See `GOVERNANCE.md` for mandatory governance, `AI-PROJECT-OPERATING-FRAMEWORK.md` for the architecture model, and `templates/` for reusable project files.
 
 ## Reusable agent profiles
 
@@ -29,7 +31,7 @@ The [`agents/` directory](agents/README.md) contains ten model-neutral profiles:
 
 `project.yaml` is the discovery entry point. In v0.1 it uses JSON syntax, which is valid YAML 1.2, so the validator has no third-party parser dependency.
 
-`framework.yaml` uses the same format and contains only the structural profile contract consumed by the validator. Behavioral requirements live in the protocol; they are not technical controls unless the active runtime enforces them.
+`framework.yaml` uses the same format and contains only the structural profile contract consumed by the validator. Behavioral requirements live in governance and protocol documents; they are not technical controls unless the active runtime enforces them.
 
 For the Full profile, add `rules`, `tasks`, `decisions`, and `checks` to the `files` object, mapped to `RULES.md`, `TASKS.md`, `DECISIONS.md`, and `CHECKS.md` respectively.
 

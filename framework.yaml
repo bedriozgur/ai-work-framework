@@ -2,7 +2,7 @@
   "schema_version": 1,
   "framework": {
     "name": "ai-work-framework",
-    "version": "0.1",
+    "version": "0.2",
     "status": "draft"
   },
   "profiles": {

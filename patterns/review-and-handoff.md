@@ -11,14 +11,6 @@ Use when work spans agents, models, machines, or sessions.
 6. Keep unresolved uncertainty visible.
 
 ## Handoff
-Record:
-- TASK
-- CONSTRAINTS
-- OUTPUTS with exact paths/references
-- COMPLETED
-- VERIFICATION with check results and evidence
-- DECISIONS and rationale
-- OPEN ISSUES
-- NEXT ACTION
+Use the handoff/return fields in `../GOVERNANCE.md` and the lifecycle requirements in `../AGENT-OPERATING-PROTOCOL.md`. Do not define a pattern-specific field list.
 
 A handoff is a navigation aid, not a substitute for inspecting authoritative project state.

@@ -39,7 +39,7 @@ Tag material claims as:
 
 - **VERIFIED:** directly supported by current authoritative evidence.
 - **OBSERVED:** visible in supplied material, not independently validated.
-- **REPORTED:** stated by customer/vendor/person, not independently confirmed.
+- Use the complete evidence-state vocabulary in `../GOVERNANCE.md`; for example, customer or vendor statements not independently confirmed are REPORTED.
 - **INFERRED:** conclusion derived from evidence; show the reasoning.
 - **ASSUMED:** temporary design assumption; state how to validate.
 - **UNKNOWN:** unresolved.

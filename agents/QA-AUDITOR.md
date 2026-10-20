@@ -49,7 +49,7 @@ Return a separate audit/discrepancy log containing:
 - Check-by-check verdict (`PASS`, `FAIL`, `NOT_VERIFIABLE`, or `NOT_APPLICABLE`).
 - Independent calculations and reproducible method where relevant.
 - Findings ordered by severity.
-- Overall assessment: `PASS`, `PASS_WITH_FINDINGS`, `FAIL`, or `INCOMPLETE`.
+- Overall assessment uses the canonical vocabulary in `../GOVERNANCE.md`: `PASS`, `PASS_WITH_FINDINGS`, `FAIL`, or `INCOMPLETE`.
 - Evidence limitations and unreviewed areas.
 - Exact next action and whether the artifact owner must decide.
 

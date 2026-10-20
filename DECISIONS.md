@@ -32,3 +32,61 @@ A continuity note created on 2026-10-05 suggested Dropbox as a portable-document
 
 ### Revisit when
 Google Drive cannot satisfy a material integration, security, access-control, or operational requirement.
+
+## D-002 — 2026-10-20 — Canonical governance and approval floor
+
+- **Status:** accepted for P0 implementation
+- **Approved by:** Bedri
+- **Supersedes:** duplicated authority, invariant, approval, assignment-envelope, and QA-vocabulary definitions
+
+### Decision
+Use `GOVERNANCE.md` as the single normative source for authority, invariants, the non-shrinkable approval floor, task classification, assignment envelopes, delegation evidence, and QA verdicts. Projects and domain profiles may strengthen these rules but may not weaken them.
+
+### Evidence
+Claude R2 identified directly conflicting lists across the protocol, framework, personal workflow, templates, and profiles. Local inspection confirmed the conflicts.
+
+### Rationale
+One canonical source reduces drift and makes generated deployment instructions reviewable.
+
+### Revisit When
+A controlled pilot identifies a governance concept that cannot be represented without ambiguity.
+
+## D-003 — 2026-10-20 — Separate impact from coordination
+
+- **Status:** accepted for P0 implementation
+- **Approved by:** Bedri
+- **Supersedes:** proposed compact L0-L3 classification
+
+### Decision
+Use two axes: `I0`-`I2` for consequence/approval and `C0`-`C2` for execution coordination. Approval follows impact and the approval floor. Delegation follows coordination need.
+
+### Evidence
+The L0-L3 proposal mixed technical complexity, delegation need, and consequence, allowing inconsistent classification.
+
+### Alternatives Considered
+- Consequence-only L0-L3.
+- Preserve the mixed L0-L3 ladder.
+
+### Rationale
+The two axes prevent complex read-only work from being mistaken for consequential action and prevent technically simple production changes from being downgraded.
+
+### Revisit When
+Pilot users cannot apply the axes consistently or the extra field creates measurable overhead without preventing errors.
+
+## D-004 — 2026-10-20 — Core, domain, runtime, and private content boundaries
+
+- **Status:** accepted in principle; migration pending
+- **Approved by:** Bedri
+- **Supersedes:** none
+
+### Decision
+Keep universal governance, lifecycle, structural templates, validation, and tests in the core. Treat domain profiles as optional packs, runtime prompts as runtime-layer artifacts, and personal/host/customer-adjacent content as a private overlay. Do not delete or move existing domain material until inventory, provenance, reuse, and migration decisions are complete.
+
+### Evidence
+The public repository contained internal infrastructure identifiers, personal workflow material, runtime-specific prompts, and third-party-derived templates alongside universal policy.
+
+### Risks / Tradeoffs
+Splitting content too early could break existing references. Leaving it mixed increases disclosure, licensing, and maintenance risk.
+
+### Revisit When
+The content inventory and repository visibility/licensing decision are complete.

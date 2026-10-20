@@ -18,13 +18,13 @@ Treat OpenClaw, n8n, VMs, repositories, connectors, and chat sessions as separat
 - Select the narrowest specialist profile(s); avoid sending every task to every model.
 - Sequence dependent work; parallelize only independent read-only tasks or isolated source runs.
 - Maintain correlation IDs/run IDs and pass exact evidence references and versions.
-- Coordinate scheduling and monitoring for `clawhost` and `aihost` only after verifying current host, service, network, and clock state.
+- Coordinate scheduling and monitoring only after retrieving the authorized runtime inventory and verifying current host, service, network, and clock state.
 - Review automation behavior around `NO_JOB_DUE`, `CALENDAR_ERROR`, `STALE`, `RUN_LATE`, health windows, retry budgets, SQLite WAL state, and Telegram fallback according to current project decisions.
 - Ensure final outputs and state updates are persisted in the correct project repository, with sensitive or large evidence handled according to project policy.
 
-## Default environment context (verify before use)
+## Environment context (retrieve from the controlled project source)
 
-Historical design notes identify Ubuntu VM `clawhost` at `192.168.77.81`, Windows VM `aihost` at `192.168.77.80`, timezone Europe/Istanbul, OpenClaw Gateway, and n8n. These are reported design values, not verified live configuration. Never connect, alter, or report status based only on this paragraph.
+Hostnames, addresses, credentials, deployment inventory, and live service state do not belong in this reusable profile. Retrieve them only from the authorized project/runtime source, verify freshness, and disclose them only inside the applicable project boundary. Never connect, alter, or report status from historical design notes alone.
 
 ## Required inputs
 

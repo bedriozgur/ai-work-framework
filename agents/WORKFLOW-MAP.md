@@ -75,7 +75,7 @@ Reports should state run/as-of time and timezone; symbols and venue; source and 
 ## Enterprise/customer engineering workflow
 
 1. Chief-of-Staff identifies customer/project, scope, output audience, and authority.
-2. Enterprise-Architect inventories evidence and classifies each claim as VERIFIED, OBSERVED, REPORTED, INFERRED, ASSUMED, STALE, or UNKNOWN.
+2. Enterprise-Architect inventories material evidence and applies the evidence-state vocabulary in `../GOVERNANCE.md`.
 3. It checks vendor support from current primary documentation and records exact model/version/region/configuration. Silence in a compatibility matrix is not automatically a vendor rejection.
 4. It creates current-state/desired-state gaps, risk, dependencies, phase, owner, precondition, approval, implementation outline, rollback, and validation.
 5. Internal engineering notes and customer-facing proposal are separated when needed.
@@ -88,19 +88,7 @@ Research-Curator defines scope, researches current primary sources, captures cit
 
 ## Task brief and return envelope
 
-Each assignment carries the nine-field brief:
-
-- **GOAL** — one observable result.
-- **SCOPE** — included/excluded work and target artifact.
-- **CONTEXT** — project state, sources, revisions, and constraints.
-- **ACCEPTANCE** — observable completion conditions.
-- **VERIFY** — checks and evidence.
-- **TIMEBOX** — deadline, timeout, retry/budget limit.
-- **FORBIDDEN** — prohibited sources, tools, writes, or actions.
-- **REPORT** — output schema/location and status fields.
-- **STANDING** — durable rules and decisions.
-
-Every return contains task/run IDs, status (`COMPLETE`, `PARTIAL`, `BLOCKED`, `FAILED`, `CANCELLED`), inputs/revisions used, actions, output references, sources/tools/timestamps/retries, checks, evidence, assumptions/conflicts, decision requests, and one next action. If the task is unattended, include a run log and concise human-readable completion summary.
+Every assignment and return uses the single canonical envelope in `../GOVERNANCE.md`. Domain workflows may add fields but may not rename, omit, or contradict canonical fields.
 
 ## Concurrency and failure rules
 
