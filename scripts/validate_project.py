@@ -16,6 +16,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path, PurePosixPath
+from urllib.parse import urlparse
 
 
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
@@ -92,9 +93,35 @@ def git_output(repo: Path, *args: str) -> str:
     return completed.stdout
 
 
-def load_pinned_contract_from_git(repo: Path, commit: str) -> tuple[dict[str, set[str]], str, str]:
+def normalize_repository(value: str) -> str:
+    value = value.strip().rstrip("/")
+    if value.endswith(".git"):
+        value = value[:-4]
+    if value.startswith("git@") and ":" in value:
+        host, path = value[4:].split(":", 1)
+        value = f"https://{host}/{path}"
+    elif value.startswith("ssh://git@"):
+        parsed = urlparse(value)
+        value = f"https://{parsed.hostname or ''}{parsed.path}"
+    parsed = urlparse(value)
+    if parsed.scheme in {"http", "https"} and parsed.hostname:
+        path = parsed.path.rstrip("/")
+        return f"https://{parsed.hostname.lower()}{path}"
+    return value
+
+
+def load_pinned_contract_from_git(
+    repo: Path, repository: str, commit: str
+) -> tuple[dict[str, set[str]], str, str]:
     repo = repo.resolve()
     try:
+        origin = git_output(repo, "config", "--get", "remote.origin.url").strip()
+        if not origin:
+            raise RuntimeError("framework repository has no remote.origin.url for identity verification")
+        if normalize_repository(origin) != normalize_repository(repository):
+            raise RuntimeError(
+                f"framework.repository {repository!r} does not match local origin {origin!r}"
+            )
         resolved = git_output(repo, "rev-parse", "--verify", f"{commit}^{{commit}}").strip()
         if resolved != commit:
             raise RuntimeError(f"framework.commit resolved to {resolved}, expected {commit}")
@@ -195,7 +222,9 @@ def validate(root: Path, framework_repo: Path | None = None, framework_snapshot:
                     )
                 else:
                     source = (framework_repo or Path(__file__).resolve().parents[1]).resolve()
-                    profiles, _, contract_version = load_pinned_contract_from_git(source, commit)
+                    profiles, _, contract_version = load_pinned_contract_from_git(
+                        source, framework.get("repository", ""), commit
+                    )
             except RuntimeError as exc:
                 fail(errors, str(exc))
         if contract_version is not None and framework.get("version") != contract_version:

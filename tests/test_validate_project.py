@@ -105,6 +105,15 @@ class ValidatorTests(unittest.TestCase):
             validate(root),
         )
 
+    def test_rejects_repository_identity_mismatch(self):
+        data = manifest()
+        data["framework"]["repository"] = "https://github.com/example/not-the-framework"
+        temp, root = self.make_project(data)
+        self.addCleanup(temp.cleanup)
+        self.assertTrue(
+            any("does not match local origin" in error for error in validate(root))
+        )
+
     def test_rejects_duplicate_json_keys(self):
         raw = json.dumps(manifest()).replace(
             '"profile": "lightweight",',
