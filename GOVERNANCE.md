@@ -1,6 +1,6 @@
 # Framework Governance
 
-**Status:** Normative draft v0.2  
+**Status:** Normative draft v0.2
 **Scope:** Universal authority, invariants, approval floor, task classification, assignment envelope, and QA verdicts.
 
 This file is the single normative home for the concepts above. Project and domain rules may add stricter requirements but may not contradict or weaken this file.
@@ -132,4 +132,3 @@ Changing an invariant, the approval floor, authority order, classification seman
 2. updated tests and generated deployment artifacts in the same release;
 3. a migration note for managed projects;
 4. a new framework version and tagged release candidate.
-

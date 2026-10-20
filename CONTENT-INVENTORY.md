@@ -13,4 +13,3 @@
 | OpenClaw project-manager prompt | `templates/OPENCLAW-PROJECT-MANAGER-PROMPT.md` | Runtime-specific candidate | Move only after runtime-layer decision |
 
 No file move or deletion is implied by this inventory. Those actions require a recorded boundary/licensing decision.
-

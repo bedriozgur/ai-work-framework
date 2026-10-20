@@ -23,4 +23,3 @@ All notable framework changes will be recorded here. The project remains pre-1.0
 - Add the framework approval floor to every project; project rules may add gates but may not remove it.
 - Update task briefs and run returns to the canonical assignment envelope in `GOVERNANCE.md`.
 - Record exact framework release/tag and generated-instruction provenance before the next controlled pilot.
-

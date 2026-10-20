@@ -25,4 +25,3 @@ Until repository visibility and licensing are explicitly decided, treat publicat
 ## Runtime claims
 
 Prompt text is not a security boundary. A project may claim `read-only`, `isolated`, `confidential`, or `approval-gated` only when its Enforcement Register identifies the technical mechanism, verifier, verification date, result, and limitations.
-
