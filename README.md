@@ -27,11 +27,13 @@ The [`agents/` directory](agents/README.md) contains ten model-neutral profiles:
 1. Copy `templates/project.yaml` and the files required by its profile.
 2. Replace every placeholder in `project.yaml`, including the exact framework commit.
 3. Optionally copy `templates/AGENTS.md` for agents that automatically load that file.
-4. Run `python3 scripts/validate_project.py /path/to/project`.
+4. From a framework checkout that contains the pinned commit, run `python3 scripts/validate_project.py /path/to/project`. Use `--framework-repo` to name another local clone or `--framework-snapshot` for an offline verified contract snapshot created by `scripts/create_framework_snapshot.py`.
 
 `project.yaml` is the discovery entry point. In v0.1 it uses JSON syntax, which is valid YAML 1.2, so the validator has no third-party parser dependency.
 
 `framework.yaml` uses the same format and contains only the structural profile contract consumed by the validator. Behavioral requirements live in governance and protocol documents; they are not technical controls unless the active runtime enforces them.
+
+`deploy/COMPACT-INSTRUCTIONS.md` is generated from canonical governance sources. Its header records the source commit and source-file hashes. Verify it with `python3 scripts/generate_compact_instructions.py --check`; do not edit it manually.
 
 For the Full profile, add `rules`, `tasks`, `decisions`, and `checks` to the `files` object, mapped to `RULES.md`, `TASKS.md`, `DECISIONS.md`, and `CHECKS.md` respectively.
 

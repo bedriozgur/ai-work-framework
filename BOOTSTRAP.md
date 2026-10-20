@@ -15,7 +15,7 @@ When none of the Full triggers is known to apply, start Lightweight and promote 
 
 Copy `templates/project.yaml` and the templates required by the selected profile. Populate only facts supported by the initiating request or inspected evidence.
 
-`project.yaml` is mandatory. Replace all placeholders, pin the exact framework commit, and run `scripts/validate_project.py` before work begins. Agents locate the project root as the nearest ancestor containing `project.yaml`.
+`project.yaml` is mandatory. Replace all placeholders, pin the exact framework commit, and run `scripts/validate_project.py` before work begins. The validator must resolve that commit from a local framework repository or a verified snapshot; a 40-character value alone is insufficient. Agents locate the project root as the nearest ancestor containing `project.yaml`.
 
 Copy `templates/AGENTS.md` when the target agent automatically loads that file. It is a pointer, not a second source of project policy.
 
