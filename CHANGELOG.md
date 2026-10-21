@@ -16,6 +16,8 @@ All notable framework changes will be recorded here. The project remains pre-1.0
 - Removed private infrastructure identifiers from reusable agent documentation.
 - Profile-specific boot behavior no longer requires Full-only files for Lightweight projects.
 - Existing bounded Work runs are described as orchestration demonstrations, not harness or production-enforcement validation.
+- Personal workflow and unresolved Grok-derived prompt material were removed from the current public tree and preserved separately pending provenance/reuse decisions.
+- Offline snapshot validation now requires a trusted out-of-band metadata digest.
 
 ### Migration
 
@@ -23,3 +25,4 @@ All notable framework changes will be recorded here. The project remains pre-1.0
 - Add the framework approval floor to every project; project rules may add gates but may not remove it.
 - Update task briefs and run returns to the canonical assignment envelope in `GOVERNANCE.md`.
 - Record exact framework release/tag and generated-instruction provenance before the next controlled pilot.
+- Existing offline snapshot consumers must pass `--framework-snapshot-sha256`; recreate snapshots whose repository identity was not verified against the source clone.

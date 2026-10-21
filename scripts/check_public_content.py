@@ -53,7 +53,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
-    print("OK: no obvious private-network identifiers or secret signatures found")
+    print("OK: no obvious private-network identifiers or secret signatures found in current checkout")
     return 0
 
 

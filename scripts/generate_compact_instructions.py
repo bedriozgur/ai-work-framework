@@ -70,6 +70,16 @@ def source_commit_from_artifact(path: Path) -> str:
     return match.group(1)
 
 
+def changed_sources(repo: Path, commit: str) -> list[str]:
+    """Return canonical sources whose current checkout differs from commit."""
+    changed: list[str] = []
+    for path in SOURCE_FILES:
+        current = (repo / path).read_text(encoding="utf-8")
+        if current != source_at(repo, commit, path):
+            changed.append(path)
+    return changed
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
@@ -86,6 +96,14 @@ def main() -> int:
 
     expected = render(repo, commit)
     if args.check:
+        changed = changed_sources(repo, commit)
+        if changed:
+            print(
+                "ERROR: canonical sources changed after the artifact source commit: "
+                + ", ".join(changed),
+                file=sys.stderr,
+            )
+            return 1
         actual = output.read_text(encoding="utf-8")
         if actual != expected:
             print(f"ERROR: {output} is stale; regenerate from {commit}", file=sys.stderr)

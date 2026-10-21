@@ -90,3 +90,21 @@ Splitting content too early could break existing references. Leaving it mixed in
 
 ### Revisit When
 The content inventory and repository visibility/licensing decision are complete.
+
+## D-005 — 2026-10-21 — Current-tree quarantine and historical exposure
+
+- **Status:** accepted for the RC2 correction round
+- **Approved by:** Bedri
+- **Supersedes:** D-004's temporary retention of personal and unresolved Grok-derived material in the public core
+
+### Decision
+Remove the personal workflow handoff and two unresolved Grok-derived prompt documents from the current public repository tree. Preserve owner-controlled copies outside the repository while provenance, reuse, and private-overlay placement are decided. Do not rewrite Git history in this correction round.
+
+### Evidence
+The repository is public. The P0 fresh review confirmed that the new public-boundary policy conflicted with the current tree and that a removed private-network address remained reachable in baseline history.
+
+### Rationale
+Current-tree quarantine reduces continued distribution without treating a destructive history rewrite as an automatic consequence. The history limitation remains visible rather than being described as remediated.
+
+### Revisit When
+Before a final public release, or immediately if review identifies credentials, customer-confidential information, or material licensing risk in reachable history.

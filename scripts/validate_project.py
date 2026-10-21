@@ -133,21 +133,33 @@ def load_pinned_contract_from_git(
     return profiles, raw, version
 
 
-def load_pinned_contract_from_snapshot(snapshot: Path, repository: str, commit: str) -> tuple[dict[str, set[str]], str, str]:
+def load_pinned_contract_from_snapshot(
+    snapshot: Path,
+    repository: str,
+    commit: str,
+    expected_metadata_sha256: str,
+) -> tuple[dict[str, set[str]], str, str]:
     manifest_path = snapshot / "snapshot.json"
     contract_path = snapshot / "framework.yaml"
     try:
-        metadata = parse_json(manifest_path.read_text(encoding="utf-8"))
+        metadata_raw = manifest_path.read_bytes()
+        metadata = parse_json(metadata_raw.decode("utf-8"))
         raw = contract_path.read_text(encoding="utf-8")
         contract = parse_json(raw)
-    except (OSError, json.JSONDecodeError, DuplicateKeyError) as exc:
+    except (OSError, UnicodeError, json.JSONDecodeError, DuplicateKeyError) as exc:
         raise RuntimeError(f"invalid framework snapshot {snapshot}: {exc}") from exc
+    if not re.fullmatch(r"[0-9a-f]{64}", expected_metadata_sha256):
+        raise RuntimeError("expected framework snapshot metadata SHA-256 must be 64 lowercase hex characters")
+    actual_metadata_sha256 = hashlib.sha256(metadata_raw).hexdigest()
+    if actual_metadata_sha256 != expected_metadata_sha256:
+        raise RuntimeError("framework snapshot metadata SHA-256 mismatch")
     if not isinstance(metadata, dict):
         raise RuntimeError(f"invalid framework snapshot {snapshot}: snapshot.json root must be an object")
     if metadata.get("schema_version") != 1:
         raise RuntimeError("framework snapshot schema_version must be 1")
     expected_hash = hashlib.sha256(raw.encode("utf-8")).hexdigest()
-    if metadata.get("repository") != repository:
+    metadata_repository = metadata.get("repository")
+    if not isinstance(metadata_repository, str) or normalize_repository(metadata_repository) != normalize_repository(repository):
         raise RuntimeError("framework snapshot repository does not match project.yaml")
     if metadata.get("commit") != commit:
         raise RuntimeError("framework snapshot commit does not match project.yaml")
@@ -177,7 +189,12 @@ def contains_unfilled_marker(text: str) -> str | None:
     return None
 
 
-def validate(root: Path, framework_repo: Path | None = None, framework_snapshot: Path | None = None) -> list[str]:
+def validate(
+    root: Path,
+    framework_repo: Path | None = None,
+    framework_snapshot: Path | None = None,
+    framework_snapshot_sha256: str | None = None,
+) -> list[str]:
     errors: list[str] = []
     root = root.resolve()
     manifest_path = root / "project.yaml"
@@ -206,19 +223,32 @@ def validate(root: Path, framework_repo: Path | None = None, framework_snapshot:
     if not isinstance(framework, dict):
         fail(errors, "framework must be an object")
     else:
+        valid_framework_fields = True
         for field in ("version", "repository", "commit"):
             if not isinstance(framework.get(field), str) or not framework[field]:
                 fail(errors, f"framework.{field} is required")
-        commit = framework.get("commit", "")
-        if not SHA40.fullmatch(commit):
+                valid_framework_fields = False
+        commit_value = framework.get("commit")
+        commit = commit_value if isinstance(commit_value, str) else ""
+        valid_commit = False
+        if not isinstance(commit_value, str) or not SHA40.fullmatch(commit):
             fail(errors, "framework.commit must be an exact lowercase 40-character Git SHA")
         elif commit in PLACEHOLDERS:
             fail(errors, "framework.commit placeholder must be replaced")
         else:
+            valid_commit = True
+        if valid_framework_fields and valid_commit:
             try:
                 if framework_snapshot is not None:
+                    if framework_snapshot_sha256 is None:
+                        raise RuntimeError(
+                            "--framework-snapshot-sha256 is required with --framework-snapshot"
+                        )
                     profiles, _, contract_version = load_pinned_contract_from_snapshot(
-                        framework_snapshot.resolve(), framework.get("repository", ""), commit
+                        framework_snapshot.resolve(),
+                        framework["repository"],
+                        commit,
+                        framework_snapshot_sha256,
                     )
                 else:
                     source = (framework_repo or Path(__file__).resolve().parents[1]).resolve()
@@ -234,10 +264,10 @@ def validate(root: Path, framework_repo: Path | None = None, framework_snapshot:
             )
 
     profile = data.get("profile")
-    if profiles and profile not in profiles:
-        fail(errors, "profile must be one of: " + ", ".join(sorted(profiles)))
-    elif not isinstance(profile, str) or not profile:
+    if not isinstance(profile, str) or not profile:
         fail(errors, "profile is required")
+    elif profiles and profile not in profiles:
+        fail(errors, "profile must be one of: " + ", ".join(sorted(profiles)))
 
     canonical = data.get("canonical_repository")
     if not isinstance(canonical, str) or not canonical:
@@ -248,7 +278,7 @@ def validate(root: Path, framework_repo: Path | None = None, framework_snapshot:
     files = data.get("files")
     if not isinstance(files, dict):
         fail(errors, "files must be an object")
-    elif profile in profiles:
+    elif isinstance(profile, str) and profile in profiles:
         expected = profiles[profile]
         missing_keys = sorted(expected - files.keys())
         extra_keys = sorted(files.keys() - expected)
@@ -302,9 +332,20 @@ def main() -> int:
         type=Path,
         help="verified snapshot directory containing snapshot.json and framework.yaml",
     )
+    parser.add_argument(
+        "--framework-snapshot-sha256",
+        help="trusted out-of-band SHA-256 of the snapshot.json metadata file",
+    )
     args = parser.parse_args()
     root = Path(args.project_root).resolve()
-    errors = validate(root, framework_repo=args.framework_repo, framework_snapshot=args.framework_snapshot)
+    if args.framework_snapshot_sha256 and args.framework_snapshot is None:
+        parser.error("--framework-snapshot-sha256 requires --framework-snapshot")
+    errors = validate(
+        root,
+        framework_repo=args.framework_repo,
+        framework_snapshot=args.framework_snapshot,
+        framework_snapshot_sha256=args.framework_snapshot_sha256,
+    )
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)

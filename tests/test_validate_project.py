@@ -105,6 +105,30 @@ class ValidatorTests(unittest.TestCase):
             validate(root),
         )
 
+    def test_invalid_framework_field_types_return_errors_without_crashing(self):
+        cases = (
+            ("repository", 123),
+            ("commit", 123),
+            ("version", ["0.1"]),
+        )
+        for field, value in cases:
+            with self.subTest(field=field):
+                data = manifest()
+                data["framework"][field] = value
+                temp, root = self.make_project(data)
+                try:
+                    errors = validate(root)
+                    self.assertTrue(any(f"framework.{field} is required" in error for error in errors))
+                finally:
+                    temp.cleanup()
+
+    def test_invalid_profile_type_returns_error_without_crashing(self):
+        data = manifest()
+        data["profile"] = []
+        temp, root = self.make_project(data)
+        self.addCleanup(temp.cleanup)
+        self.assertIn("profile is required", validate(root))
+
     def test_rejects_repository_identity_mismatch(self):
         data = manifest()
         data["framework"]["repository"] = "https://github.com/example/not-the-framework"
@@ -188,18 +212,39 @@ class ValidatorTests(unittest.TestCase):
             text=True,
         ).stdout
         (snapshot / "framework.yaml").write_text(contract, encoding="utf-8")
-        (snapshot / "snapshot.json").write_text(
-            json.dumps(
-                {
-                    "schema_version": 1,
-                    "repository": data["framework"]["repository"],
-                    "commit": SHA,
-                    "framework_yaml_sha256": hashlib.sha256(contract.encode("utf-8")).hexdigest(),
-                }
-            ),
-            encoding="utf-8",
+        metadata_raw = json.dumps(
+            {
+                "schema_version": 1,
+                "repository": data["framework"]["repository"],
+                "commit": SHA,
+                "framework_yaml_sha256": hashlib.sha256(contract.encode("utf-8")).hexdigest(),
+            }
         )
-        self.assertEqual(validate(root, framework_snapshot=snapshot), [])
+        (snapshot / "snapshot.json").write_text(metadata_raw, encoding="utf-8")
+        metadata_hash = hashlib.sha256(metadata_raw.encode("utf-8")).hexdigest()
+        self.assertEqual(
+            validate(
+                root,
+                framework_snapshot=snapshot,
+                framework_snapshot_sha256=metadata_hash,
+            ),
+            [],
+        )
+
+    def test_verified_snapshot_requires_out_of_band_metadata_hash(self):
+        data = manifest()
+        temp, root = self.make_project(data)
+        self.addCleanup(temp.cleanup)
+        snapshot = root / "snapshot"
+        snapshot.mkdir()
+        (snapshot / "framework.yaml").write_text("{}", encoding="utf-8")
+        (snapshot / "snapshot.json").write_text("{}", encoding="utf-8")
+        self.assertTrue(
+            any(
+                "--framework-snapshot-sha256 is required" in error
+                for error in validate(root, framework_snapshot=snapshot)
+            )
+        )
 
     def test_verified_snapshot_rejects_hash_mismatch(self):
         data = manifest()
@@ -208,19 +253,82 @@ class ValidatorTests(unittest.TestCase):
         snapshot = root / "snapshot"
         snapshot.mkdir()
         (snapshot / "framework.yaml").write_text('{"schema_version": 1, "profiles": {}}', encoding="utf-8")
-        (snapshot / "snapshot.json").write_text(
-            json.dumps(
-                {
-                    "schema_version": 1,
-                    "repository": data["framework"]["repository"],
-                    "commit": SHA,
-                    "framework_yaml_sha256": "0" * 64,
-                }
-            ),
-            encoding="utf-8",
+        metadata_raw = json.dumps(
+            {
+                "schema_version": 1,
+                "repository": data["framework"]["repository"],
+                "commit": SHA,
+                "framework_yaml_sha256": "0" * 64,
+            }
         )
+        (snapshot / "snapshot.json").write_text(metadata_raw, encoding="utf-8")
+        metadata_hash = hashlib.sha256(metadata_raw.encode("utf-8")).hexdigest()
         self.assertTrue(
-            any("framework snapshot contract hash mismatch" in error for error in validate(root, framework_snapshot=snapshot))
+            any(
+                "framework snapshot contract hash mismatch" in error
+                for error in validate(
+                    root,
+                    framework_snapshot=snapshot,
+                    framework_snapshot_sha256=metadata_hash,
+                )
+            )
+        )
+
+    def test_snapshot_creator_rejects_false_repository_identity(self):
+        repository_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            result = subprocess.run(
+                [
+                    "python3",
+                    str(repository_root / "scripts/create_framework_snapshot.py"),
+                    str(Path(directory) / "snapshot"),
+                    "--repo",
+                    str(repository_root),
+                    "--repository-url",
+                    "https://github.com/example/fake-framework",
+                    "--commit",
+                    SHA,
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("does not match local origin", result.stderr)
+
+    def test_snapshot_creator_and_validator_round_trip(self):
+        repository_root = Path(__file__).resolve().parents[1]
+        data = manifest()
+        temp, root = self.make_project(data)
+        self.addCleanup(temp.cleanup)
+        snapshot = root / "snapshot"
+        result = subprocess.run(
+            [
+                "python3",
+                str(repository_root / "scripts/create_framework_snapshot.py"),
+                str(snapshot),
+                "--repo",
+                str(repository_root),
+                "--repository-url",
+                data["framework"]["repository"],
+                "--commit",
+                SHA,
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        digest_line = next(
+            line for line in result.stdout.splitlines() if line.startswith("SNAPSHOT_JSON_SHA256: ")
+        )
+        digest = digest_line.split(": ", 1)[1]
+        self.assertEqual(
+            validate(
+                root,
+                framework_snapshot=snapshot,
+                framework_snapshot_sha256=digest,
+            ),
+            [],
         )
 
 

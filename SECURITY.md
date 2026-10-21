@@ -22,6 +22,10 @@ The following belong outside a public core:
 
 Until repository visibility and licensing are explicitly decided, treat publication as unresolved. Do not add new personal, customer-adjacent, or third-party-derived content.
 
+## Historical exposure
+
+The current-tree scanner checks the checked-out files only; it does not establish that prior Git history is clean. Pre-RC2 history contains the personal/Grok-derived files quarantined on 2026-10-21 and one removed private-network address match. No history rewrite is part of RC2. Treat this as recorded residual exposure and reassess before a final public release or sooner if review identifies credentials, customer-confidential data, or material legal risk.
+
 ## Runtime claims
 
 Prompt text is not a security boundary. A project may claim `read-only`, `isolated`, `confidential`, or `approval-gated` only when its Enforcement Register identifies the technical mechanism, verifier, verification date, result, and limitations.

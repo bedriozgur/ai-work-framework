@@ -1,15 +1,15 @@
 # Content Boundary Inventory
 
-**Status:** Review required before public release.
+**Status:** Current-tree boundary applied for RC2 review; historical exposure and licensing decisions remain recorded below.
 
 | Content | Current location | Boundary decision | Action |
 |---|---|---|---|
 | Universal governance and protocol | Root Markdown files | Public/core candidate | Retain after consistency review |
 | Validator, tests, CI, structural templates | `scripts/`, `tests/`, `.github/`, project templates | Public/core candidate | Retain after hardening |
-| Personal workflow | `BEDRI-CHATGPT-WORKFLOW.md` | Private overlay candidate | Do not expand; decide move before release |
+| Personal workflow | Private overlay outside this repository | Private overlay | Removed from the current public tree on 2026-10-21; retained separately by the owner |
 | Domain profiles and workflows | `agents/` | Optional domain-pack candidate | Retain temporarily; measure actual use before migration |
-| Host/runtime-specific operational context | `agents/INFRA-ORCHESTRATOR.md`, runtime prompts | Private/runtime layer | Remove identifiers from core; migrate after decision |
-| Grok-derived prompt material | `templates/GROK-BOT-PROMPT-RAW.md`, `templates/MIDAS-X-RESEARCH-DESK-GROK-BOT.md` | Provenance/reuse review required | Quarantine from a public release until reviewed |
+| Host/runtime-specific operational context | `agents/INFRA-ORCHESTRATOR.md`, runtime prompts | Private/runtime layer | Current-tree identifiers removed; runtime-layer migration remains pending |
+| Grok-derived prompt material | Owner-controlled quarantine outside this repository | Provenance/reuse review required | Removed from the current public tree on 2026-10-21; do not restore without a recorded reuse decision |
 | OpenClaw project-manager prompt | `templates/OPENCLAW-PROJECT-MANAGER-PROMPT.md` | Runtime-specific candidate | Move only after runtime-layer decision |
 
-No file move or deletion is implied by this inventory. Those actions require a recorded boundary/licensing decision.
+The removed files remain reachable in pre-RC2 Git history because this correction does not rewrite public history. See `SECURITY.md` and D-005 in `DECISIONS.md`.
