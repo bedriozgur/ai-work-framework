@@ -22,6 +22,8 @@ See `GOVERNANCE.md` for mandatory governance, `AI-PROJECT-OPERATING-FRAMEWORK.md
 
 The [`agents/` directory](agents/README.md) contains ten model-neutral profiles: cross-domain coordination, infrastructure orchestration, MIDAS portfolio synthesis, source-isolated data collection, technical risk, issuer fundamentals/catalysts, quantitative research engineering, enterprise architecture, QA, and general research. These documents define behavior and handoffs; runtime tools, permissions, source isolation, and approval controls must be configured separately. User-specific workflow context belongs in a private overlay, not this public core.
 
+Public profiles are generic examples. Live schedules, personal authority, holdings, notification routes, customer facts, project-specific terminology, and private runtime configuration belong in controlled project or private overlays.
+
 ## Start a project
 
 1. Copy `templates/project.yaml` and the files required by its profile.

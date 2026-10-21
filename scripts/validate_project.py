@@ -53,6 +53,8 @@ def contract_details(contract: object, source: str) -> tuple[dict[str, set[str]]
         raise RuntimeError(f"invalid framework contract {source}: root must be an object")
     if contract.get("schema_version") != 1 or not isinstance(contract.get("profiles"), dict):
         raise RuntimeError(f"invalid framework contract {source}: must define schema_version 1 and profiles")
+    if not contract["profiles"]:
+        raise RuntimeError(f"invalid framework contract {source}: profiles must not be empty")
 
     framework = contract.get("framework")
     version = framework.get("version") if isinstance(framework, dict) else None
@@ -61,6 +63,8 @@ def contract_details(contract: object, source: str) -> tuple[dict[str, set[str]]
 
     profiles: dict[str, set[str]] = {}
     for name, definition in contract["profiles"].items():
+        if not isinstance(name, str) or not name:
+            raise RuntimeError(f"invalid framework contract {source}: profile names must be non-empty strings")
         keys = definition.get("required_file_keys") if isinstance(definition, dict) else None
         if not isinstance(keys, list) or not keys or not all(isinstance(key, str) and key for key in keys):
             raise RuntimeError(f"profile {name!r} must define non-empty required_file_keys")
@@ -219,6 +223,7 @@ def validate(
 
     framework = data.get("framework")
     profiles: dict[str, set[str]] = {}
+    contract_loaded = False
     contract_version: str | None = None
     if not isinstance(framework, dict):
         fail(errors, "framework must be an object")
@@ -250,11 +255,13 @@ def validate(
                         commit,
                         framework_snapshot_sha256,
                     )
+                    contract_loaded = True
                 else:
                     source = (framework_repo or Path(__file__).resolve().parents[1]).resolve()
                     profiles, _, contract_version = load_pinned_contract_from_git(
                         source, framework.get("repository", ""), commit
                     )
+                    contract_loaded = True
             except RuntimeError as exc:
                 fail(errors, str(exc))
         if contract_version is not None and framework.get("version") != contract_version:
@@ -266,7 +273,7 @@ def validate(
     profile = data.get("profile")
     if not isinstance(profile, str) or not profile:
         fail(errors, "profile is required")
-    elif profiles and profile not in profiles:
+    elif contract_loaded and profile not in profiles:
         fail(errors, "profile must be one of: " + ", ".join(sorted(profiles)))
 
     canonical = data.get("canonical_repository")
@@ -278,7 +285,7 @@ def validate(
     files = data.get("files")
     if not isinstance(files, dict):
         fail(errors, "files must be an object")
-    elif isinstance(profile, str) and profile in profiles:
+    elif contract_loaded and isinstance(profile, str) and profile in profiles:
         expected = profiles[profile]
         missing_keys = sorted(expected - files.keys())
         extra_keys = sorted(files.keys() - expected)

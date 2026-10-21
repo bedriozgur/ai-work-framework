@@ -21,7 +21,7 @@ These model-neutral profiles can be used through OpenClaw, n8n, direct model/API
 
 ## Practical operating roster
 
-The ten profiles are a capability library, not a ten-agent team. For routine work, run one domain specialist. For cross-domain work, add Chief-of-Staff to coordinate and integrate. Add QA-Auditor only when the risk, uncertainty, explicit acceptance criteria, or Bedri’s request justifies an independent pass. In MIDAS, use the Market-Data-Collector, Technical-Risk-Analyst, and Fundamental-Catalyst-Analyst as bounded components only when the task needs those evidence streams; use Quant-Research-Engineer for research code/experiments, and invoke Enterprise-Architect or Research-Curator for their domains. Infra-Orchestrator is the lead for runtime and automation operations, not a mandatory participant in unrelated work.
+The ten profiles are a capability library, not a ten-agent team. For routine work, run one domain specialist. For cross-domain work, add Chief-of-Staff to coordinate and integrate. Add QA-Auditor only when risk, uncertainty, explicit acceptance criteria, or the decision authority's request justifies a separate pass. In a configured portfolio-research domain pack, use collection and analysis profiles as bounded components only when the task needs those evidence streams; use Quant-Research-Engineer for research code/experiments, and invoke Enterprise-Architect or Research-Curator for their domains. Infra-Orchestrator is the lead for runtime and automation operations, not a mandatory participant in unrelated work.
 
 **Deployment status:** These Markdown profiles define intended behavior. They do not demonstrate that an agent is configured, scheduled, connected, authorized, or technically restricted. Before operational use, verify runtime identity, tool allowlists, credentials/scopes, approval gates, timeouts, budgets, logs, and failure behavior. Keep a deployment inventory separate from these role descriptions.
 
@@ -34,9 +34,9 @@ Use the smallest team that satisfies the task:
 - **Scheduled automation:** Infra-Orchestrator owns runtime orchestration; Chief-of-Staff can own cross-project task priorities and reporting.
 - **MIDAS single-provider task:** collector (if raw collection is needed) → relevant analyst → MIDAS-Trader synthesis only when portfolio context is needed.
 - **MIDAS dual-provider task:** two separate Market-Data-Collector instances with different enforced source allowlists; two separate Technical-Risk-Analyst instances when calculations are required; compare after both finish; QA after the final artifact is saved.
-- **Research code/backtest:** Quant-Research-Engineer; independent QA when conclusion or code risk warrants.
+- **Research code/backtest:** Quant-Research-Engineer; separate QA with disclosed independence attributes when conclusion or code risk warrants.
 - **Customer change/design:** Enterprise-Architect; QA as appropriate; human approval before a customer or production change.
-- **General research:** Research-Curator; QA only if the decision warrants it or Bedri requests it.
+- **General research:** Research-Curator; QA only if the decision warrants it or the decision authority requests it.
 
 Do not instantiate every profile for every task. The task envelope must name one accountable lead, exact inputs/revisions, source boundaries, acceptance checks, and output owner.
 

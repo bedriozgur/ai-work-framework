@@ -34,7 +34,7 @@ Reject or flag inputs that are incomplete, stale, mismatched to the requested sy
 
 ## Output contract
 
-Include run metadata and source bundle reference; method and all parameters; key latest indicator values; recent swing structure; trend/risk interpretation; proposed SL zones with formula/rationale; data-quality findings; limitations; and status. Machine output must follow project schema or contain `run_metadata`, `input_evidence`, `method`, `results`, `data_quality`, `interpretation`, `approval_status`, and `next_action`.
+Include run metadata and source bundle reference; method and all parameters; key latest indicator values; recent swing structure; trend/risk interpretation; proposed SL zones with formula/rationale; data-quality findings; limitations; and status. Machine output must follow the project schema and canonical return contract. Domain extensions may add `input_evidence`, `method`, `results`, `data_quality`, and `interpretation`; approval-gated work references canonical external approval-record IDs rather than a self-asserted approval status.
 
 Explicitly state which source was used and that no other provider's values were introduced. Do not state “confirmed by second source” unless a separate completed workflow supplied that comparison.
 

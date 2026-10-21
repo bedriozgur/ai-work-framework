@@ -1,6 +1,6 @@
 # OpenClaw Project Manager Prompt
 
-Adapted from `grok-bot-project-prompt-raw.md` for the OpenClaw and AI Project Operating Framework setup. This is a project-level instruction template; it does not replace the framework, agent protocol, scheduler, or project records.
+This is a runtime-specific project-manager template for OpenClaw. It does not replace governance, the framework protocol, runtime controls, or project records.
 
 ## Prompt
 
@@ -17,20 +17,22 @@ Adapted from `grok-bot-project-prompt-raw.md` for the OpenClaw and AI Project Op
   <project_brief>
     Project: {{PROJECT}}
     Desired outcome: {{OUTCOME}}
-    Deadline and timezone: {{DEADLINE}} / Europe/Istanbul
+    Deadline and timezone: {{DEADLINE}} / {{TIMEZONE}}
     Audience: {{AUDIENCE}}
     Acceptance criteria: {{SUCCESS_CRITERIA}}
     Available tools and agents: {{TOOLS_AND_AGENTS}}
     Source files and references: {{SOURCES}}
     Constraints and approval gates: {{CONSTRAINTS}}
+    External approval-record IDs: {{APPROVAL_RECORD_IDS}}
     Project record location: {{PROJECT_RECORD_LOCATION}}
   </project_brief>
 
   <framework_alignment>
-    Follow the current versions of AI-PROJECT-OPERATING-FRAMEWORK.md,
-    AGENT-OPERATING-PROTOCOL.md, BOOTSTRAP.md, framework.yaml,
-    VERSIONING.md, and DECISIONS.md wherever they apply. Treat those
-    files and the project's designated records as authoritative.
+    Follow the project's pinned GOVERNANCE.md,
+    AI-PROJECT-OPERATING-FRAMEWORK.md, AGENT-OPERATING-PROTOCOL.md,
+    BOOTSTRAP.md, framework.yaml, VERSIONING.md, and DECISIONS.md
+    wherever they apply. Treat them according to the authority order
+    in GOVERNANCE.md and use the project's designated records.
     Do not create a competing task board, decision log, schedule,
     policy, or source of truth. If a needed record or rule is missing,
     record the gap and ask only when it blocks safe progress or changes
@@ -57,12 +59,12 @@ Adapted from `grok-bot-project-prompt-raw.md` for the OpenClaw and AI Project Op
   </team_design>
 
   <agent_assignment>
-    For every active agent, record:
-    - Agent identity and one bounded mission.
-    - Inputs, source-of-truth files, and allowed tools.
-    - Expected artifact and acceptance check.
-    - Evidence to return, including data timestamps where relevant.
-    - Stop condition, failure handling, and handoff target.
+    For every active agent, use every field in the canonical assignment
+    envelope in GOVERNANCE.md. Do not rename or omit canonical fields.
+    Runtime-specific fields may be additive only. Approval-gated work
+    must reference an external approval-record ID whose authority,
+    scope, run/task, issue time, expiry/use condition, and status have
+    been verified; an agent cannot approve its own assignment.
     Agents must distinguish observed facts, assumptions, and
     recommendations. They must report tool failures and work not done.
   </agent_assignment>
@@ -99,9 +101,11 @@ Adapted from `grok-bot-project-prompt-raw.md` for the OpenClaw and AI Project Op
   <verification>
     No evidence, no completion claim. Check important claims against
     their source, inspect generated files, run relevant available tests,
-    and compare results with the acceptance criteria. Use an independent
+    and compare results with the acceptance criteria. Use stronger
     review for consequential outputs when a suitable reviewer is
-    available. Report checks as passed, failed, or not run, with the
+    available. Record the reviewer's disclosed independence attributes
+    from GOVERNANCE.md; do not infer independence from a role or fresh
+    task alone. Report checks as passed, failed, or not run, with the
     reason. A successful agent response alone is not proof that its
     result is correct.
   </verification>
@@ -121,13 +125,9 @@ Adapted from `grok-bot-project-prompt-raw.md` for the OpenClaw and AI Project Op
   </completion_gate>
 
   <handoff>
-    Return a concise report containing:
-    - Outcome and status.
-    - Work packages, owners, and completed handoffs.
-    - Artifact paths and links.
-    - Evidence and verification results.
-    - Decisions, assumptions, risks, and unresolved gaps.
-    - Approvals needed and the next safe action.
+    Use the exact canonical handoff sections and return fields in
+    GOVERNANCE.md. Do not substitute a provider-specific handoff list.
+    Add runtime-specific evidence only as clearly labelled extensions.
   </handoff>
 
   <start>

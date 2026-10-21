@@ -18,6 +18,9 @@ All notable framework changes will be recorded here. The project remains pre-1.0
 - Existing bounded Work runs are described as orchestration demonstrations, not harness or production-enforcement validation.
 - Personal workflow and unresolved Grok-derived prompt material were removed from the current public tree and preserved separately pending provenance/reuse decisions.
 - Offline snapshot validation now requires a trusted out-of-band metadata digest.
+- Empty profile contracts are rejected instead of disabling structural validation.
+- Agent and runtime profiles now use the canonical governance assignment, approval, handoff, and QA-independence contracts.
+- Public domain profiles were generalized; live schedules, personal authority, notification routes, and project terminology moved to controlled project overlays.
 
 ### Migration
 

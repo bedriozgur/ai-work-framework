@@ -20,7 +20,7 @@ The following belong outside a public core:
 - provider-specific operational prompts that contain private configuration;
 - third-party-derived material without recorded provenance and reuse rights.
 
-Until repository visibility and licensing are explicitly decided, treat publication as unresolved. Do not add new personal, customer-adjacent, or third-party-derived content.
+This repository is an authorized public pilot core. Generic domain profiles and runtime examples may remain public when they contain no personal state, live schedules, customer facts, private configuration, or third-party-derived material without recorded reuse rights. Do not add personal, customer-adjacent, or unresolved third-party-derived content.
 
 ## Historical exposure
 

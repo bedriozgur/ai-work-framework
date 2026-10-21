@@ -7,8 +7,8 @@ This map describes intended role routing; it is not proof that an OpenClaw, n8n,
 - **Chief-of-Staff** owns cross-domain intake, task framing, queue visibility, specialist assignment, and final handoff. It does not own specialist technical conclusions.
 - **Infra-Orchestrator** owns the AI/automation execution environment: OpenClaw, n8n, MCPs, VM/service state, scheduling, retries, callback handling, and workflow observability.
 - **Domain specialists** own bounded evidence work within their profile.
-- **QA-Auditor** independently checks a final artifact and returns a separate audit record.
-- **Bedri** retains portfolio/capital decisions, customer approvals, and other consequential human decisions.
+- **QA-Auditor** performs a separate evidence review and returns a distinct audit record; independence is claimed only from disclosed execution evidence.
+- **The authorized human decision authority** retains portfolio/capital decisions, customer approvals, and other consequential decisions.
 
 For a direct request clearly addressed to a specialist, that specialist may lead without a Chief-of-Staff pass. For recurring jobs, Infra-Orchestrator may start the run directly from the authorized schedule and rules.
 
@@ -18,7 +18,7 @@ For a direct request clearly addressed to a specialist, that specialist may lead
 |---|---|---|---|
 | Daily MIDAS scan/portfolio review | MIDAS-Trader or scheduled Infra-Orchestrator | Market-Data-Collector, Technical-Risk-Analyst, Fundamental-Catalyst-Analyst; QA-Auditor when required | Verify current state/calendar → collect by source → analyze by domain → synthesize → audit → persist and notify |
 | TV vs Alpha Vantage independent analysis | MIDAS-Trader or Chief-of-Staff | Two isolated Collector instances; two isolated Technical-Risk-Analyst instances; QA-Auditor | Run A and B independently → freeze both → compare → audit → report |
-| PRT research/code/backtest | Chief-of-Staff or direct request | Quant-Research-Engineer; QA-Auditor as warranted | Approved hypothesis/spec → implement/test → baseline and out-of-sample evaluation → independent check → report |
+| Quantitative research/code/backtest | Chief-of-Staff or direct request | Quant-Research-Engineer; QA-Auditor as warranted | Approved hypothesis/spec → implement/test → baseline and out-of-sample evaluation → separate evidence check → report |
 | OpenClaw/n8n/MCP/scheduler or VM issue | Infra-Orchestrator | QA-Auditor for material change | Read-only diagnosis → bounded proposal → approval if needed → authorized change → verify runtime and recovery |
 | Customer infrastructure assessment/design | Chief-of-Staff for broad program; otherwise Enterprise-Architect | Research-Curator for vendor evidence; QA-Auditor for consequential findings | Inventory/evidence → classify → design/remediation → customer/internal outputs → review |
 | Product, technical, genealogy, or other general research | Research-Curator | QA-Auditor when evidence or consequence warrants | Scope → primary research → compare → synthesize → source list |
@@ -28,14 +28,14 @@ For a direct request clearly addressed to a specialist, that specialist may lead
 
 ### A. Scheduled review
 
-1. The scheduler or Infra-Orchestrator determines whether a run is due from the current approved schedule, exchange calendar, local timezone, and holiday/early-close rules. The recorded weekday stage times are Discovery 15:00, Pre-open 16:20, and Post-open 18:00 Europe/Istanbul. Treat these as schedule definitions, not proof of run completion. Do not move them without an authorized project change.
-2. Check the US Eastern offset, Europe/Istanbul time, exchange holiday/early-close calendar, and actual expected regular-session open for that date. The US regular session normally opens at 09:30 Eastern. During US daylight time, 16:20 Istanbul is 10 minutes before open and 18:00 is 90 minutes after; during US standard time, 16:20 is 70 minutes before and 18:00 is 30 minutes after. Discovery at 15:00 also shifts relative to open. Report actual minutes-to-open/after-open with each run; if the existing timing no longer fits the operational purpose, propose a schedule change for approval.
-2. MIDAS-Trader loads the current portfolio, cash, shortlist/longlist, strategy, open decisions, report schema, and prior run state from the MIDAS project sources.
-3. The appropriate collector obtains the configured discovery/price/fundamental evidence. Screening sources remain discovery-only where project rules say so.
-4. Technical and fundamental analysts return separate evidence-backed work products. Candidate status remains distinct from holding status and an approved decision.
-5. MIDAS-Trader prepares the portfolio-context synthesis and decision candidates. Bedri reviews and decides.
-6. QA-Auditor checks material calculations, source and freshness markers, and final report content when required.
-7. Authorized artifacts are saved to the MIDAS repository; run state/logs are updated; Telegram or other notifications report status and links, not unsupported conclusions.
+1. The scheduler or Infra-Orchestrator determines whether a run is due from the controlled project's approved stage configuration, exchange calendar, configured timezone, and holiday/early-close rules. The public workflow contains no live schedule.
+2. Check the relevant exchange timezone, configured local timezone, holiday/early-close calendar, and actual expected session times for that date. Report the run's relation to the configured market event; propose schedule changes through the project approval process.
+3. MIDAS-Trader loads the current portfolio, cash, shortlist/longlist, strategy, open decisions, report schema, and prior run state from controlled project sources.
+4. The appropriate collector obtains the configured discovery/price/fundamental evidence. Screening sources remain discovery-only where project rules say so.
+5. Technical and fundamental analysts return separate evidence-backed work products. Candidate status remains distinct from holding status and an approved decision.
+6. MIDAS-Trader prepares the portfolio-context synthesis and decision candidates. The authorized human decision authority reviews and decides.
+7. QA-Auditor checks material calculations, source and freshness markers, and final report content when required.
+8. Authorized artifacts are saved to the project repository; run state/logs are updated; configured notification channels report status and links, not unsupported conclusions.
 
 ### B. Independent provider analysis
 
@@ -51,17 +51,15 @@ For a direct request clearly addressed to a specialist, that specialist may lead
 
 Reports should state run/as-of time and timezone; symbols and venue; source and freshness; raw evidence reference; calculations/formulas/seeds/units; errors and gaps; candidate/holding/decision status; limits; verification; and next action. Proposed SL1/SL2 zones are analytical triggers unless separately found in an approved current strategy record. A research report never implies an order was placed.
 
-## PRT research-engineering workflow
+## Quantitative research-engineering workflow
 
-“PRT” is preserved as Bedri's term; do not expand the acronym without an authoritative definition.
-
-1. Bedri/assistant records a specific research question or hypothesis and what would falsify it.
+1. The request owner records a specific research question or hypothesis and what would falsify it.
 2. Quant-Research-Engineer locates the project code, dataset, base commit, and current test/run instructions.
 3. Agree on signal timing, fills, costs/slippage, corporate actions, universe/survivorship, train/test periods, benchmark, metrics, and compute/time limits before interpreting results.
 4. Implement a bounded experiment in a branch or sandbox; record versions, seeds, commands, and data lineage.
 5. Run deterministic tests and a baseline comparison; report out-of-sample results, drawdowns, transaction costs, parameter sensitivity, and failure cases.
-6. QA-Auditor independently checks the final commit and material statistics when warranted.
-7. Bedri interprets findings and decides whether to continue research. No automation schedules live strategies or places orders.
+6. QA-Auditor separately checks the final commit and material statistics when warranted and discloses its independence attributes.
+7. The authorized decision authority interprets findings and decides whether to continue research. No automation schedules live strategies or places orders.
 
 ## AI platform and automation workflow
 
@@ -70,7 +68,7 @@ Reports should state run/as-of time and timezone; symbols and venue; source and 
 - OpenClaw runs configured specialist/tool workflows; n8n handles only the deterministic orchestration functions assigned to it. Do not presume an architecture's implementation state from a plan.
 - Python is used for deterministic transforms, indicators, and backtests where a transparent reproducible calculation is preferable to model reasoning.
 - GitHub stores canonical framework/project control state. Google Drive is the standard artifact/evidence/interchange plane under the accepted framework decision. Dropbox is not part of the standard framework architecture.
-- Telegram carries notifications/fallbacks; messages must reflect verified run status and should not expose secrets or unnecessary evidence.
+- The controlled project defines notification and fallback channels; messages must reflect verified run status and must not expose secrets or unnecessary evidence.
 
 ## Enterprise/customer engineering workflow
 
@@ -80,7 +78,7 @@ Reports should state run/as-of time and timezone; symbols and venue; source and 
 4. It creates current-state/desired-state gaps, risk, dependencies, phase, owner, precondition, approval, implementation outline, rollback, and validation.
 5. Internal engineering notes and customer-facing proposal are separated when needed.
 6. QA checks high-impact findings, calculations, support claims, and final text.
-7. A proposed remediation remains a proposal until the customer/Bedri approval and implementation evidence are recorded.
+7. A proposed remediation remains a proposal until the applicable customer or authorized decision authority approval and implementation evidence are recorded.
 
 ## General research and deliverable workflow
 

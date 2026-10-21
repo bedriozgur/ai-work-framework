@@ -246,6 +246,39 @@ class ValidatorTests(unittest.TestCase):
             )
         )
 
+    def test_snapshot_contract_rejects_empty_profiles_without_failing_open(self):
+        data = manifest()
+        data["profile"] = "invented"
+        data["files"] = {}
+        temp, root = self.make_project(data)
+        self.addCleanup(temp.cleanup)
+        snapshot = root / "snapshot"
+        snapshot.mkdir()
+        contract = json.dumps(
+            {
+                "schema_version": 1,
+                "framework": {"version": "0.1"},
+                "profiles": {},
+            }
+        )
+        (snapshot / "framework.yaml").write_text(contract, encoding="utf-8")
+        metadata_raw = json.dumps(
+            {
+                "schema_version": 1,
+                "repository": data["framework"]["repository"],
+                "commit": SHA,
+                "framework_yaml_sha256": hashlib.sha256(contract.encode("utf-8")).hexdigest(),
+            }
+        )
+        (snapshot / "snapshot.json").write_text(metadata_raw, encoding="utf-8")
+        metadata_hash = hashlib.sha256(metadata_raw.encode("utf-8")).hexdigest()
+        errors = validate(
+            root,
+            framework_snapshot=snapshot,
+            framework_snapshot_sha256=metadata_hash,
+        )
+        self.assertTrue(any("profiles must not be empty" in error for error in errors))
+
     def test_verified_snapshot_rejects_hash_mismatch(self):
         data = manifest()
         temp, root = self.make_project(data)

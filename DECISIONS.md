@@ -108,3 +108,20 @@ Current-tree quarantine reduces continued distribution without treating a destru
 
 ### Revisit When
 Before a final public release, or immediately if review identifies credentials, customer-confidential information, or material licensing risk in reachable history.
+
+## D-006 — 2026-10-21 — Generic public domain packs and private project configuration
+
+- **Status:** accepted for the RC2 correction round
+- **Approved by:** repository owner
+- **Supersedes:** D-004's unresolved classification of current domain and runtime examples
+
+### Decision
+Keep generic agent profiles, domain-pack examples, and runtime templates in the authorized public pilot core. Remove personal authority statements, live schedules, notification routes, private runtime configuration, portfolio state, and project-specific terminology from those examples. Store such values only in controlled project or private overlays.
+
+Profiles and runtime templates must use the canonical governance assignment, return, approval, handoff, and QA-independence contracts rather than defining weaker variants.
+
+### Rationale
+Reusable profiles are useful public examples, but public methodology does not require publishing a particular user's operating configuration. Explicit separation makes the content boundary testable and prevents examples from silently weakening governance.
+
+### Revisit When
+A generic public example cannot remain useful without project-specific configuration, or a project needs a formally versioned private domain pack.
