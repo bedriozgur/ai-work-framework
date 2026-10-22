@@ -9,13 +9,9 @@
 -
 
 ## Approval Required
-- Destructive actions, including deletion, overwrite, truncation, force-push, and history rewrite
-- Production configuration changes
-- Production restarts
-- External publication or communication
-- Purchases
-- Financial trades
-- Irreversible actions
+The framework approval floor in `GOVERNANCE.md` always applies. List project-specific additions below; this section cannot remove or narrow the framework floor.
+
+-
 
 ## Prohibited Actions
 -
@@ -34,3 +30,10 @@ For retryable reads, define a bounded attempt/time budget. Before retrying a tim
 ## Sensitive Evidence
 <!-- Define classifications, approved stores/model providers, and redaction requirements. Never put credentials in project files. -->
 -
+
+## Enforcement Register
+Written policy is not technical enforcement. Record only controls verified for this project/runtime.
+
+| Control / claimed boundary | Technical mechanism | Verified by | Verified at | Result | Limitations / expiry |
+|---|---|---|---|---|---|
+| | | | | policy-only | |

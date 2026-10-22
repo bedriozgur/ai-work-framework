@@ -10,6 +10,8 @@ The framework uses semantic-style versions once v1.0 is declared.
 
 Until v1.0, the framework remains Draft and may change incompatibly.
 
+Every pilot or release candidate must use an annotated tag. A branch name or untagged working tree is not a release identifier. Generated deployment instructions record the exact canonical-source commit and source-file hashes; the deployment artifact may be committed in a subsequent packaging commit because a Git commit cannot contain its own resulting SHA.
+
 ## Project adoption
 
 Each managed project must record the framework version and exact framework commit it adopted in `project.yaml`. A moving branch name is not a reproducible pin. Framework updates do not automatically rewrite project-specific rules or state.
@@ -21,6 +23,8 @@ An upgrade should:
 4. apply structural changes;
 5. validate required files/checks;
 6. record the migration in project progress.
+
+Pre-1.0 releases also require a changelog entry and an explicit migration note for incompatible governance, profile, manifest, or validator behavior.
 
 ## Principle
 

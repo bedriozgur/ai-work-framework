@@ -3,7 +3,7 @@
   "project_id": "replace-me",
   "profile": "lightweight",
   "framework": {
-    "version": "0.1",
+    "version": "0.2",
     "repository": "https://github.com/bedriozgur/ai-work-framework",
     "commit": "0000000000000000000000000000000000000000"
   },

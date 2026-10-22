@@ -1,43 +1,176 @@
 #!/usr/bin/env python3
-"""Validate the v0.1 project manifest and required control files.
+"""Validate the project manifest, pinned framework contract, and control files.
 
 The manifest uses JSON syntax saved as project.yaml. JSON is valid YAML 1.2 and
-keeps this validator dependency-free. This deliberately validates structure,
-not the truth of project claims or the availability of remote repositories.
+keeps this validator dependency-free. Validation resolves the pinned framework
+commit from a local repository or a verified snapshot; it does not treat a
+40-character string as proof that the framework revision exists.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path, PurePosixPath
+from urllib.parse import urlparse
 
 
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 PLACEHOLDERS = {"replace-me", "https://github.com/owner/repository", "0" * 40}
+EXPLICIT_TEMPLATE_MARKERS = (
+    "<!--",
+    "<stage/task>",
+    "<Task>",
+    "<Decision>",
+    "RUN-YYYYMMDD",
+    "YYYY-MM-DD",
+)
 
 
-def load_profiles() -> dict[str, set[str]]:
-    contract_path = Path(__file__).resolve().parents[1] / "framework.yaml"
-    try:
-        contract = json.loads(contract_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise RuntimeError(f"invalid framework contract {contract_path}: {exc}") from exc
+class DuplicateKeyError(ValueError):
+    """Raised when a JSON object repeats a key."""
 
+
+def reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise DuplicateKeyError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def parse_json(text: str) -> object:
+    return json.loads(text, object_pairs_hook=reject_duplicate_keys)
+
+
+def contract_details(contract: object, source: str) -> tuple[dict[str, set[str]], str]:
+    if not isinstance(contract, dict):
+        raise RuntimeError(f"invalid framework contract {source}: root must be an object")
     if contract.get("schema_version") != 1 or not isinstance(contract.get("profiles"), dict):
-        raise RuntimeError("framework.yaml must define schema_version 1 and profiles")
+        raise RuntimeError(f"invalid framework contract {source}: must define schema_version 1 and profiles")
+    if not contract["profiles"]:
+        raise RuntimeError(f"invalid framework contract {source}: profiles must not be empty")
+
+    framework = contract.get("framework")
+    version = framework.get("version") if isinstance(framework, dict) else None
+    if not isinstance(version, str) or not version:
+        raise RuntimeError(f"invalid framework contract {source}: framework.version is required")
 
     profiles: dict[str, set[str]] = {}
     for name, definition in contract["profiles"].items():
+        if not isinstance(name, str) or not name:
+            raise RuntimeError(f"invalid framework contract {source}: profile names must be non-empty strings")
         keys = definition.get("required_file_keys") if isinstance(definition, dict) else None
         if not isinstance(keys, list) or not keys or not all(isinstance(key, str) and key for key in keys):
             raise RuntimeError(f"profile {name!r} must define non-empty required_file_keys")
         if len(keys) != len(set(keys)):
             raise RuntimeError(f"profile {name!r} contains duplicate required_file_keys")
         profiles[name] = set(keys)
-    return profiles
+    return profiles, version
+
+
+def load_profiles() -> dict[str, set[str]]:
+    """Load the contract from the current worktree for framework self-tests."""
+    contract_path = Path(__file__).resolve().parents[1] / "framework.yaml"
+    try:
+        contract = parse_json(contract_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, DuplicateKeyError) as exc:
+        raise RuntimeError(f"invalid framework contract {contract_path}: {exc}") from exc
+    return contract_details(contract, str(contract_path))[0]
+
+
+def git_output(repo: Path, *args: str) -> str:
+    completed = subprocess.run(
+        ["git", "-C", str(repo), *args],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        detail = completed.stderr.strip() or completed.stdout.strip() or "git command failed"
+        raise RuntimeError(detail)
+    return completed.stdout
+
+
+def normalize_repository(value: str) -> str:
+    value = value.strip().rstrip("/")
+    if value.endswith(".git"):
+        value = value[:-4]
+    if value.startswith("git@") and ":" in value:
+        host, path = value[4:].split(":", 1)
+        value = f"https://{host}/{path}"
+    elif value.startswith("ssh://git@"):
+        parsed = urlparse(value)
+        value = f"https://{parsed.hostname or ''}{parsed.path}"
+    parsed = urlparse(value)
+    if parsed.scheme in {"http", "https"} and parsed.hostname:
+        path = parsed.path.rstrip("/")
+        return f"https://{parsed.hostname.lower()}{path}"
+    return value
+
+
+def load_pinned_contract_from_git(
+    repo: Path, repository: str, commit: str
+) -> tuple[dict[str, set[str]], str, str]:
+    repo = repo.resolve()
+    try:
+        origin = git_output(repo, "config", "--get", "remote.origin.url").strip()
+        if not origin:
+            raise RuntimeError("framework repository has no remote.origin.url for identity verification")
+        if normalize_repository(origin) != normalize_repository(repository):
+            raise RuntimeError(
+                f"framework.repository {repository!r} does not match local origin {origin!r}"
+            )
+        resolved = git_output(repo, "rev-parse", "--verify", f"{commit}^{{commit}}").strip()
+        if resolved != commit:
+            raise RuntimeError(f"framework.commit resolved to {resolved}, expected {commit}")
+        raw = git_output(repo, "show", f"{commit}:framework.yaml")
+        contract = parse_json(raw)
+    except (RuntimeError, json.JSONDecodeError, DuplicateKeyError) as exc:
+        raise RuntimeError(f"cannot resolve pinned framework commit {commit} in {repo}: {exc}") from exc
+    profiles, version = contract_details(contract, f"{repo}@{commit}:framework.yaml")
+    return profiles, raw, version
+
+
+def load_pinned_contract_from_snapshot(
+    snapshot: Path,
+    repository: str,
+    commit: str,
+    expected_metadata_sha256: str,
+) -> tuple[dict[str, set[str]], str, str]:
+    manifest_path = snapshot / "snapshot.json"
+    contract_path = snapshot / "framework.yaml"
+    try:
+        metadata_raw = manifest_path.read_bytes()
+        metadata = parse_json(metadata_raw.decode("utf-8"))
+        raw = contract_path.read_text(encoding="utf-8")
+        contract = parse_json(raw)
+    except (OSError, UnicodeError, json.JSONDecodeError, DuplicateKeyError) as exc:
+        raise RuntimeError(f"invalid framework snapshot {snapshot}: {exc}") from exc
+    if not re.fullmatch(r"[0-9a-f]{64}", expected_metadata_sha256):
+        raise RuntimeError("expected framework snapshot metadata SHA-256 must be 64 lowercase hex characters")
+    actual_metadata_sha256 = hashlib.sha256(metadata_raw).hexdigest()
+    if actual_metadata_sha256 != expected_metadata_sha256:
+        raise RuntimeError("framework snapshot metadata SHA-256 mismatch")
+    if not isinstance(metadata, dict):
+        raise RuntimeError(f"invalid framework snapshot {snapshot}: snapshot.json root must be an object")
+    if metadata.get("schema_version") != 1:
+        raise RuntimeError("framework snapshot schema_version must be 1")
+    expected_hash = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    metadata_repository = metadata.get("repository")
+    if not isinstance(metadata_repository, str) or normalize_repository(metadata_repository) != normalize_repository(repository):
+        raise RuntimeError("framework snapshot repository does not match project.yaml")
+    if metadata.get("commit") != commit:
+        raise RuntimeError("framework snapshot commit does not match project.yaml")
+    if metadata.get("framework_yaml_sha256") != expected_hash:
+        raise RuntimeError("framework snapshot contract hash mismatch")
+    profiles, version = contract_details(contract, str(contract_path))
+    return profiles, raw, version
 
 
 def fail(errors: list[str], message: str) -> None:
@@ -47,23 +180,34 @@ def fail(errors: list[str], message: str) -> None:
 def relative_file(value: object) -> bool:
     if not isinstance(value, str) or not value:
         return False
+    if "\\" in value or ":" in value or "\x00" in value:
+        return False
     path = PurePosixPath(value)
-    return not path.is_absolute() and ".." not in path.parts
+    return not path.is_absolute() and ".." not in path.parts and path.name not in {"", "."}
 
 
-def validate(root: Path) -> list[str]:
+def contains_unfilled_marker(text: str) -> str | None:
+    for marker in EXPLICIT_TEMPLATE_MARKERS:
+        if marker in text:
+            return marker
+    return None
+
+
+def validate(
+    root: Path,
+    framework_repo: Path | None = None,
+    framework_snapshot: Path | None = None,
+    framework_snapshot_sha256: str | None = None,
+) -> list[str]:
     errors: list[str] = []
-    try:
-        profiles = load_profiles()
-    except RuntimeError as exc:
-        return [str(exc)]
+    root = root.resolve()
     manifest_path = root / "project.yaml"
     if not manifest_path.is_file():
         return ["missing project.yaml"]
 
     try:
-        data = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        data = parse_json(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, DuplicateKeyError) as exc:
         return [f"project.yaml must use valid JSON/YAML-1.2 syntax: {exc}"]
 
     if not isinstance(data, dict):
@@ -77,22 +221,60 @@ def validate(root: Path) -> list[str]:
     elif project_id in PLACEHOLDERS:
         fail(errors, "project_id placeholder must be replaced")
 
-    profile = data.get("profile")
-    if profile not in profiles:
-        fail(errors, "profile must be one of: " + ", ".join(sorted(profiles)))
-
     framework = data.get("framework")
+    profiles: dict[str, set[str]] = {}
+    contract_loaded = False
+    contract_version: str | None = None
     if not isinstance(framework, dict):
         fail(errors, "framework must be an object")
     else:
+        valid_framework_fields = True
         for field in ("version", "repository", "commit"):
             if not isinstance(framework.get(field), str) or not framework[field]:
                 fail(errors, f"framework.{field} is required")
-        commit = framework.get("commit", "")
-        if not SHA40.fullmatch(commit):
+                valid_framework_fields = False
+        commit_value = framework.get("commit")
+        commit = commit_value if isinstance(commit_value, str) else ""
+        valid_commit = False
+        if not isinstance(commit_value, str) or not SHA40.fullmatch(commit):
             fail(errors, "framework.commit must be an exact lowercase 40-character Git SHA")
         elif commit in PLACEHOLDERS:
             fail(errors, "framework.commit placeholder must be replaced")
+        else:
+            valid_commit = True
+        if valid_framework_fields and valid_commit:
+            try:
+                if framework_snapshot is not None:
+                    if framework_snapshot_sha256 is None:
+                        raise RuntimeError(
+                            "--framework-snapshot-sha256 is required with --framework-snapshot"
+                        )
+                    profiles, _, contract_version = load_pinned_contract_from_snapshot(
+                        framework_snapshot.resolve(),
+                        framework["repository"],
+                        commit,
+                        framework_snapshot_sha256,
+                    )
+                    contract_loaded = True
+                else:
+                    source = (framework_repo or Path(__file__).resolve().parents[1]).resolve()
+                    profiles, _, contract_version = load_pinned_contract_from_git(
+                        source, framework.get("repository", ""), commit
+                    )
+                    contract_loaded = True
+            except RuntimeError as exc:
+                fail(errors, str(exc))
+        if contract_version is not None and framework.get("version") != contract_version:
+            fail(
+                errors,
+                f"framework.version {framework.get('version')!r} does not match pinned contract {contract_version!r}",
+            )
+
+    profile = data.get("profile")
+    if not isinstance(profile, str) or not profile:
+        fail(errors, "profile is required")
+    elif contract_loaded and profile not in profiles:
+        fail(errors, "profile must be one of: " + ", ".join(sorted(profiles)))
 
     canonical = data.get("canonical_repository")
     if not isinstance(canonical, str) or not canonical:
@@ -103,7 +285,7 @@ def validate(root: Path) -> list[str]:
     files = data.get("files")
     if not isinstance(files, dict):
         fail(errors, "files must be an object")
-    elif profile in profiles:
+    elif contract_loaded and isinstance(profile, str) and profile in profiles:
         expected = profiles[profile]
         missing_keys = sorted(expected - files.keys())
         extra_keys = sorted(files.keys() - expected)
@@ -116,11 +298,29 @@ def validate(root: Path) -> list[str]:
             if not relative_file(value):
                 fail(errors, f"files.{key} must be a relative path inside the project")
                 continue
-            if value in seen:
+            normalized = value.casefold()
+            if normalized in seen:
                 fail(errors, f"duplicate control-file path: {value}")
-            seen.add(value)
-            if not (root / value).is_file():
+            seen.add(normalized)
+            candidate = root / value
+            if not candidate.is_file():
                 fail(errors, f"missing required file: {value}")
+                continue
+            try:
+                resolved = candidate.resolve(strict=True)
+            except OSError as exc:
+                fail(errors, f"cannot resolve required file {value}: {exc}")
+                continue
+            if not resolved.is_relative_to(root):
+                fail(errors, f"required file escapes project root: {value}")
+                continue
+            try:
+                marker = contains_unfilled_marker(candidate.read_text(encoding="utf-8"))
+            except (OSError, UnicodeError) as exc:
+                fail(errors, f"cannot read required file {value}: {exc}")
+                continue
+            if marker is not None:
+                fail(errors, f"required file contains unfilled template marker {marker!r}: {value}")
 
     return errors
 
@@ -128,9 +328,31 @@ def validate(root: Path) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("project_root", nargs="?", default=".")
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument(
+        "--framework-repo",
+        type=Path,
+        help="local Git repository containing the pinned framework commit",
+    )
+    source.add_argument(
+        "--framework-snapshot",
+        type=Path,
+        help="verified snapshot directory containing snapshot.json and framework.yaml",
+    )
+    parser.add_argument(
+        "--framework-snapshot-sha256",
+        help="trusted out-of-band SHA-256 of the snapshot.json metadata file",
+    )
     args = parser.parse_args()
     root = Path(args.project_root).resolve()
-    errors = validate(root)
+    if args.framework_snapshot_sha256 and args.framework_snapshot is None:
+        parser.error("--framework-snapshot-sha256 requires --framework-snapshot")
+    errors = validate(
+        root,
+        framework_repo=args.framework_repo,
+        framework_snapshot=args.framework_snapshot,
+        framework_snapshot_sha256=args.framework_snapshot_sha256,
+    )
     if errors:
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
